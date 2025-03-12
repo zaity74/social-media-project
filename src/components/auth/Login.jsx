@@ -8,6 +8,7 @@ import {
   Typography,
   Paper,
 } from '@mui/material'
+import { login } from '../../../service/api'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +27,14 @@ const Login = () => {
     e.preventDefault()
     // Handle login logic here
     console.log('Login data:', formData)
+    login(formData.email, formData.password)
+      .then((data) => {
+        console.log('Login response:', data)
+        // Redirect to home page
+      })
+      .catch((error) => {
+        console.error('Login error:', error)
+      })
   }
 
   return (
@@ -82,6 +91,7 @@ const Login = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              onClick={handleSubmit}
             >
               Se connecter
             </Button>
