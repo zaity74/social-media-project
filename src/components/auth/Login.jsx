@@ -8,7 +8,6 @@ import {
   Typography,
   Paper,
 } from '@mui/material'
-import { login } from '../../../service/api'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -27,14 +26,6 @@ const Login = () => {
     e.preventDefault()
     // Handle login logic here
     console.log('Login data:', formData)
-    login(formData.email, formData.password)
-      .then((data) => {
-        console.log('Login response:', data)
-        // Redirect to home page
-      })
-      .catch((error) => {
-        console.error('Login error:', error)
-      })
   }
 
   return (

@@ -8,13 +8,19 @@ import {
   Typography,
   Paper,
 } from '@mui/material'
+import { userRegister } from '../../redux/action/authAction'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Register = () => {
+
+  const dispatch = useDispatch();
+  const userRegisterState = useSelector(state => state.auth.userRegister)
+
+  
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
-    confirmPassword: '',
   })
 
   const handleChange = (e) => {
@@ -24,10 +30,16 @@ const Register = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     // Handle registration logic here
     console.log('Registration data:', formData)
+    try {
+      dispatch(userRegister(formData))
+    } catch (error) {
+      console.log(error)
+    }
+    
   }
 
   return (
