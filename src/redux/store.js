@@ -1,9 +1,10 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import { userRegister } from "./action/authAction";
 import { userRegisterReducer } from "./reducer/authReducer";
+import { iaTreatmentReducer } from "./reducer/iaReducer";
 
 const rootReducer = combineReducers({
     userRegister: userRegisterReducer,
+    iaTreatment : iaTreatmentReducer
 });
  
 const initialState = {};
