@@ -29,10 +29,10 @@ export const createPost = (postData) => async (dispatch) => {
   try {
     dispatch({ type: CREATE_POST_REQUEST });
 
-    const { data } = await axios.post("http://localhost:8081/post", postData);
+    const { data } = await axios.post("http://localhost:8081/", postData);
 
-    console.log("✅ Réponse API :", data); // LOG
-
+    console.log("Réponse API :", data); 
+    
     dispatch({ type: "CREATE_POST_SUCCESS", payload: data });
 
     return data; // On retourne les données pour les utiliser immédiatement
