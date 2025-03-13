@@ -5,11 +5,12 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const iaTreatment = (snapshots) => async (dispatch) => {
+export const iaTreatment = (snapshots,currentPostId) => async (dispatch) => {
     try {
         dispatch({ type: "IA_REQUEST" });
 
         const formData = new FormData();
+        formData.append("postId", currentPostId); // Ajout de l'ID du post
 
         snapshots.forEach((snapshot, index) => {
             // Vérification si snapshot est bien une string en Base64
@@ -37,11 +38,10 @@ export const iaTreatment = (snapshots) => async (dispatch) => {
             }
         };
 
-        const { data } = await api.post("/predict", formData, config);
+        const { data } = await api.post("/predict", formData, config);        
 
         dispatch({
             type: "IA_SUCCESS",
-            payload: data,
         });
 
     } catch (error) {

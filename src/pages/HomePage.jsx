@@ -1,17 +1,51 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import MainLayout from "../components/layout/MainLayout";
 import CreatePost from "../components/posts/CreatePost";
 import PostCard from "../components/posts/PostCard";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import { useDarkMode } from "../context/DarkModeContext";
-import { useTheme } from "@mui/material/styles"; // ✅ Ajout de useTheme
+import {
+  SortContainer,
+  SortButton,
+  SortIconWrapper,
+  PostsStack,
+  SortMenu,
+  SortMenuItem,
+} from "./HomePage.styles";
 import SnapshotCapture from "../components/snapshotCapture/snapshotCapture";
 
 const HomePage = () => {
   const [sortBy, setSortBy] = useState("recent");
-  const { isDarkMode } = useDarkMode();
-  const theme = useTheme(); // ✅ Utilisation de useTheme
+  useDarkMode();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleSortClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleSortClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort);
+    handleSortClose();
+  };
+
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case "recent":
+        return "Récents";
+      case "popular":
+        return "Populaire";
+      case "followed":
+        return "Suivis";
+      default:
+        return "Récents";
+    }
+  };
 
   const posts = [
     {
@@ -53,16 +87,19 @@ const HomePage = () => {
       const rect = ref.current.getBoundingClientRect();
       const totalHeight = rect.height;
       // Calcul de la hauteur visible de l'élément
-      const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+      const visibleHeight =
+        Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
 
       // Si au moins 90% du post est visible, on le considère comme "lu"
       if (visibleHeight >= 0.9 * totalHeight) {
-        chosenTweet = ref.current.getAttribute('data-id');
+        chosenTweet = ref.current.getAttribute("data-id");
         break;
       }
     }
     setCurrentTweetId(chosenTweet);
-    console.log(`Tweet actuellement lu : ${chosenTweet ? chosenTweet : 'Aucun'}`);
+    console.log(
+      `Tweet actuellement lu : ${chosenTweet ? chosenTweet : "Aucun"}`
+    );
   };
 
   // useEffect pour recalculer le tweet lu lors du scroll (avec debounce)
@@ -75,68 +112,67 @@ const HomePage = () => {
       }, 150);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     // Premier calcul lors du montage
     recalcCurrentTweet();
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, [posts]);
 
-
   return (
     <MainLayout>
-      {/* Création de Post */}
       <CreatePost />
 
-      {/* Filtre  */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          mb: 2,
-          mt: 2,
-          position: "relative",
-          "&::before": {
-            content: '""',
-            display: "block",
-            width: "70%",
-            height: "2px", // Épaisseur du trait
-            backgroundColor: theme.palette.lightExtra.main,
-            marginRight: "10px", // Espacement avec le texte
-          },
-        }}
-      >
-        <Typography
-          variant="body1"
-          sx={{
-            fontWeight: 600,
-            fontSize: "14px",
-            color: theme.palette.text.primary,
-            display: "flex",
-            alignItems: "center",
-            gap: "5px", // Espacement avec l'icône
-          }}
+      <SortContainer>
+        <SortButton
+          onClick={handleSortClick}
+          aria-controls={open ? "sort-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
         >
-          Trier par: Récents <KeyboardArrowDownIcon fontSize="small" />
-        </Typography>
-      </Box>
+          Trier par: {getSortLabel()}
+          <SortIconWrapper>
+            <KeyboardDoubleArrowDownIcon fontSize="small" />
+          </SortIconWrapper>
+        </SortButton>
 
-      {/* Liste des Posts */}
-      <Stack spacing={2} sx={{ width: "100%" }}>
-        {posts.map((post, index) => (
-          <div key={post.id} ref={postRefs.current[index]} data-id={post.id}>
-            <PostCard post={post} />
-          </div>
-        ))}
-      </Stack>
+        <SortMenu
+          id="sort-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleSortClose}
+          MenuListProps={{ "aria-labelledby": "sort-button" }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          {["recent", "popular", "followed"].map((option) => (
+            <SortMenuItem
+              key={option}
+              onClick={() => handleSortChange(option)}
+              selected={sortBy === option}
+            >
+              {getSortLabel(option)}
+            </SortMenuItem>
+          ))}
+        </SortMenu>
+      </SortContainer>
 
-      <SnapshotCapture 
-        onSnapshot={(img) => console.log("Snapshot capturé :", img)}
-        observedElementRef={{ current: document.querySelector(`[data-id="${currentTweetId}"]`) }}
-      />
+        <Stack spacing={2} sx={{ width: "100%" }}>
+          {posts.map((post, index) => (
+            <div key={post.id} ref={postRefs.current[index]} data-id={post.id}>
+              <PostCard post={post} />
+            </div>
+          ))}
+        </Stack>
+
+        <SnapshotCapture
+          observedElementRef={{
+            current: document.querySelector(`[data-id="${currentTweetId}"]`),
+          }}
+        />
     </MainLayout>
   );
 };

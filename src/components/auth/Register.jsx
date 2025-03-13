@@ -1,72 +1,75 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import {
-  Box,
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-} from '@mui/material'
-import { userRegister } from '../../redux/action/authAction'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { 
+  Box, Container, TextField, Button, Typography, Paper, CircularProgress, Alert
+} from "@mui/material";
+
+// Actions import
+import { userRegister } from "../../redux/action/authAction";
 
 const Register = () => {
-
   const dispatch = useDispatch();
-  const userRegisterState = useSelector(state => state.auth.userRegister)
-
   
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-  })
+  // Récupérer les données stockés dans le reducer Register
+  const { user, loading, error, isRegistered, successMessage } = useSelector((state) => state.userRegister);
 
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Functions 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+    setErrorMessage(""); // Efface le message d'erreur en tapant
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    // Handle registration logic here
-    console.log('Registration data:', formData)
+    e.preventDefault();
     try {
-      dispatch(userRegister(formData))
+      dispatch(userRegister(formData.username, formData.email, formData.password));
     } catch (error) {
-      console.log(error)
+      console.error(error);
     }
-    
-  }
+  };
 
   return (
     <Container component="main" maxWidth="xs">
       <Box
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <Paper
           elevation={3}
           sx={{
             p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
           }}
         >
           <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
             Créer un compte Y
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+
+          {/* ✅ Affichage des messages de succès et d'erreur */}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
+
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
             <TextField
               margin="normal"
               required
@@ -102,28 +105,19 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirmer le mot de passe"
-              type="password"
-              id="confirmPassword"
-              autoComplete="new-password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={loading} // 
             >
-              S'inscrire
+              {loading ? <CircularProgress size={24} /> : "S'inscrire"}
             </Button>
-            <Box sx={{ textAlign: 'center' }}>
-              <Link to="/login" style={{ textDecoration: 'none' }}>
+
+            <Box sx={{ textAlign: "center" }}>
+              <Link to="/login" style={{ textDecoration: "none" }}>
                 <Typography color="primary">
                   Déjà un compte ? Se connecter
                 </Typography>
@@ -133,7 +127,7 @@ const Register = () => {
         </Paper>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

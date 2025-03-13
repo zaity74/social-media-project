@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Container,
@@ -7,26 +8,36 @@ import {
   Button,
   Typography,
   Paper,
-} from '@mui/material'
+  CircularProgress,
+  Alert
+} from '@mui/material';
+
+// Actions import
+import { userLogin } from '../../redux/action/authAction';
 
 const Login = () => {
+  const dispatch = useDispatch();
+
+  // ** Récupérer les données du reducer Login **
+  const { user, loading, error, isLogin } = useSelector((state) => state.userLogin);
+
+
+  // ** State pour les champs du formulaire **
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-  })
+  });
 
+  // ** Gestion des changements des inputs **
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
+  // ** Soumission du formulaire **
   const handleSubmit = (e) => {
-    e.preventDefault()
-    // Handle login logic here
-    console.log('Login data:', formData)
-  }
+    e.preventDefault();
+    dispatch(userLogin(formData.email, formData.password));
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -52,6 +63,10 @@ const Login = () => {
           <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
             Connexion à Y
           </Typography>
+
+          {/* ✅ Affichage des erreurs et messages */}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
           <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
             <TextField
               margin="normal"
@@ -77,15 +92,17 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
             />
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              onClick={handleSubmit}
+              disabled={loading} // Désactive le bouton pendant le chargement
             >
-              Se connecter
+              {loading ? <CircularProgress size={24} /> : 'Se connecter'}
             </Button>
+
             <Box sx={{ textAlign: 'center' }}>
               <Link to="/register" style={{ textDecoration: 'none' }}>
                 <Typography color="primary">
@@ -97,7 +114,7 @@ const Login = () => {
         </Paper>
       </Box>
     </Container>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

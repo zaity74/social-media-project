@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { iaTreatment } from "../../redux/action/iaAction";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 
 const SnapshotCapture = ({
   onSnapshot,
@@ -8,13 +8,14 @@ const SnapshotCapture = ({
   observedElementRef = null,
 }) => {
   const dispatch = useDispatch();
-  const { payload, loading, error } = useSelector(state => state.iaTreatment);
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [documentVisible, setDocumentVisible] = useState(true);
   const [snapshots, setSnapshots] = useState([]);
-  const [waitingForScroll, setWaitingForScroll] = useState(false); // Ajout d'un état pour détecter la reprise du scroll
+  const [waitingForScroll, setWaitingForScroll] = useState(false);
+
+  const { payload, loading, error } = useSelector((state) => state.iaTreatment);
 
   // 1. Demander l'accès à la caméra lors du montage
   useEffect(() => {
@@ -46,10 +47,16 @@ const SnapshotCapture = ({
       if (!isScrolling) {
         setIsScrolling(true);
       }
-      
+
       if (waitingForScroll && snapshots.length > 0) {
-        console.log("Envoi des snapshots à l'API...");
-        dispatch(iaTreatment(snapshots));
+        const currentPostId = observedElementRef?.current?.getAttribute("data-id") || null;
+        console.log("Envoi des snapshots à l'API Node.js...");
+        console.log(`Nombre d'images : ${snapshots.length}`);
+        console.log(`Post observé : ${currentPostId}`);
+        if(currentPostId){
+          dispatch(iaTreatment(snapshots, currentPostId));
+        }
+      
         setSnapshots([]); // Vider le tableau après l'envoi
         setWaitingForScroll(false);
       }
@@ -60,7 +67,7 @@ const SnapshotCapture = ({
 
       scrollTimeout = setTimeout(() => {
         setIsScrolling(false);
-        setWaitingForScroll(true); // Indique qu'on attend la reprise du scroll pour envoyer les images
+        setWaitingForScroll(true);
       }, scrollDebounceMs);
     };
 
@@ -87,14 +94,10 @@ const SnapshotCapture = ({
   useEffect(() => {
     let timeoutId;
     const captureLoop = () => {
-      if (
-        !isScrolling &&
-        videoRef.current &&
-        videoRef.current.readyState === 4 &&
-        documentVisible
-      ) {
+      if (!isScrolling && videoRef.current && videoRef.current.readyState === 4 && documentVisible) {
         const snapshot = captureSnapshot(videoRef.current);
         setSnapshots((prevSnapshots) => [...prevSnapshots, snapshot]);
+
         if (onSnapshot) onSnapshot(snapshot);
         if (observedElementRef && observedElementRef.current) {
           const postId = observedElementRef.current.getAttribute("data-id");
@@ -103,7 +106,7 @@ const SnapshotCapture = ({
           console.log("Prise d'un snapshot");
         }
       }
-      const randomDelay = Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
+      const randomDelay = Math.floor(Math.random() * (3000 - 1250 + 1)) + 1250;
       timeoutId = setTimeout(captureLoop, randomDelay);
     };
     captureLoop();
@@ -120,7 +123,6 @@ const SnapshotCapture = ({
     return canvas.toDataURL("image/jpeg");
   }
 
-  // Mettre opacity a 0 en production
   return (
     <div style={{ opacity: 1 }}>
       <video

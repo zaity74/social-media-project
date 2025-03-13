@@ -1,18 +1,18 @@
-import { Box, Typography, Paper, useTheme, Link } from '@mui/material';
-import SoloItem from './Item';
+import { Box, Typography, Paper, useTheme, Link } from "@mui/material";
+import SoloItem from "./Item";
 
-const ItemList = ({ title, data, borderColor, showFollowButton, action, borderRadiusValue, borderDirection, addIcon }) => {
+const ItemList = ({ title, data, borderColor, showFollowButton, action, borderRadiusValue, borderDirection, addIcon, onActionClick }) => {
   const theme = useTheme();
 
   return (
     <Paper 
       sx={{ 
-        [borderDirection] : `4px solid ${borderColor}`,
+        [borderDirection]: `4px solid ${borderColor}`,
         borderRadius: borderRadiusValue, 
         padding: "20px",
       }}
     >
-      {/* Titre */}
+      {/* ✅ Titre + Voir plus */}
       <Box 
         sx={{ 
           display: 'flex', 
@@ -32,7 +32,12 @@ const ItemList = ({ title, data, borderColor, showFollowButton, action, borderRa
         >
           {title}
         </Typography>
-        <Link href='#'>
+
+        {/*  ouvrir le popup */}
+        <Link href="#" onClick={(e) => {
+          e.preventDefault();
+          if (onActionClick) onActionClick();
+        }}>
           {action} {addIcon}
         </Link>
       </Box>
