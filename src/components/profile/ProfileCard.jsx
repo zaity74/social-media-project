@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { useUser } from "../../context/UserContext"; // ✅ Import du contexte utilisateur
 import {
   ProfileContainer,
   ProfileHeader,
@@ -13,31 +13,33 @@ import {
 } from "./ProfileCard.styles";
 
 const ProfileCard = () => {
+  const { user } = useUser(); // ✅ Récupération des infos utilisateur
+
   return (
     <ProfileContainer>
       {/* Header avec l'avatar et les infos sur une même ligne */}
       <ProfileHeader>
-        <ProfilePicture src="/path-to-profile-pic.jpg" />
+        <ProfilePicture src={user?.avatarUrl || "/default-avatar.png"} />
         <ProfileInfo>
-          <Username>User Name</Username>
-          <Handle>@username</Handle>
+          <Username>{user?.username || "Utilisateur"}</Username>
+          <Handle>@{user?.username?.toLowerCase() || "username"}</Handle>
         </ProfileInfo>
       </ProfileHeader>
 
       {/* Statistiques */}
       <StatsContainer>
         <StatBox>
-          <StatValue>150</StatValue>
+          <StatValue>{user?.postCount || 0}</StatValue>
           <StatLabel>Posts</StatLabel>
         </StatBox>
 
         <StatBox>
-          <StatValue>200</StatValue>
+          <StatValue>{user?.followers || 0}</StatValue>
           <StatLabel>Followers</StatLabel>
         </StatBox>
 
         <StatBox>
-          <StatValue>200</StatValue>
+          <StatValue>{user?.following || 0}</StatValue>
           <StatLabel>Following</StatLabel>
         </StatBox>
       </StatsContainer>

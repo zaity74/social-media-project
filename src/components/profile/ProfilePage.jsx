@@ -1,24 +1,29 @@
-import { useState } from 'react'
-import { useDarkMode } from '../../context/DarkModeContext'
-import ProfileEditPopup from '../popups/ProfileEditPopup'
+import { useState } from "react";
+import { useDarkMode } from "../../context/DarkModeContext";
+import { useUser } from "../../context/UserContext"; // ✅ Import de `useUser`
+import ProfileEditPopup from "../popups/ProfileEditPopup";
 
-import { HeaderContainer, 
+import { 
+  HeaderContainer, 
   BannerContainer, 
   ProfilePictureWrapper, 
   ProfilePicture,
-EditProfileButton, 
-ContentContainer, 
-UserInfoContainer, 
-NameContainer, 
-Username,
-Handle, 
-Bio, 
-TabsContainer,
-Tab } from './ProfilePage.styles'
+  EditProfileButton, 
+  ContentContainer, 
+  UserInfoContainer, 
+  NameContainer, 
+  Username,
+  Handle, 
+  Bio, 
+  TabsContainer,
+  Tab 
+} from "./ProfilePage.styles";
 
 const ProfilePageHeader = () => {
   const { isDarkMode } = useDarkMode();
-  const [activeTab, setActiveTab] = useState('posts');
+  const { user, isLogin } = useUser(); // ✅ Récupération des infos utilisateur
+
+  const [activeTab, setActiveTab] = useState("posts");
   const [showEditProfile, setShowEditProfile] = useState(false);
 
   const handleEditProfile = () => {
@@ -27,67 +32,56 @@ const ProfilePageHeader = () => {
 
   return (
     <>
-      <HeaderContainer >
+      <HeaderContainer>
         <BannerContainer>
           <ProfilePictureWrapper>
-            <ProfilePicture />
+            <ProfilePicture src={user?.avatarUrl || "/default-avatar.png"} alt="Avatar" />
           </ProfilePictureWrapper>
-          
-          <EditProfileButton
-            onClick={handleEditProfile}
-            variant="contained"
-          >
-            Modifier le profil
-          </EditProfileButton>
+
+          {isLogin && (
+            <EditProfileButton onClick={handleEditProfile} variant="contained">
+              Modifier le profil
+            </EditProfileButton>
+          )}
         </BannerContainer>
 
         <ContentContainer>
           <UserInfoContainer>
             <NameContainer>
-              <Username>User Name</Username>
-              <Handle>@username</Handle>
+              <Username>{user?.username || "Utilisateur"}</Username> {/* ✅ Affichage sécurisé */}
+              <Handle>@{user?.username?.toLowerCase() || "username"}</Handle>
             </NameContainer>
-            <Bio>
-              Bio texte ici...
-            </Bio>
+            <Bio>{user?.bio || "Aucune bio pour le moment..."}</Bio>
           </UserInfoContainer>
 
           <TabsContainer>
-            <Tab 
-              active={activeTab === 'posts'} 
-              onClick={() => setActiveTab('posts')}
-            >
+            <Tab active={activeTab === "posts"} onClick={() => setActiveTab("posts")}>
               Mes posts
             </Tab>
-            <Tab 
-              active={activeTab === 'saved'} 
-              onClick={() => setActiveTab('saved')}
-            >
+            <Tab active={activeTab === "saved"} onClick={() => setActiveTab("saved")}>
               Enregistrements
             </Tab>
-            <Tab 
-              active={activeTab === 'likes'} 
-              onClick={() => setActiveTab('likes')}
-            >
+            <Tab active={activeTab === "likes"} onClick={() => setActiveTab("likes")}>
               Likes
             </Tab>
           </TabsContainer>
         </ContentContainer>
       </HeaderContainer>
 
+      {/* ✅ Fenêtre modale d'édition du profil */}
       <ProfileEditPopup
         open={showEditProfile}
         onClose={() => setShowEditProfile(false)}
         initialData={{
-          name: 'User Name',
-          username: 'username',
-          bio: 'Bio texte ici...',
-          avatarUrl: '',
-          bannerUrl: ''
+          name: user?.username || "Utilisateur",
+          username: user?.username || "username",
+          bio: user?.bio || "",
+          avatarUrl: user?.avatarUrl || "/default-avatar.png",
+          bannerUrl: user?.bannerUrl || "/default-banner.jpg"
         }}
       />
     </>
-  )
-}
+  );
+};
 
-export default ProfilePageHeader
+export default ProfilePageHeader;
