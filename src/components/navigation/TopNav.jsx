@@ -27,7 +27,8 @@ import {
 
 const TopNav = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { user, isLogin, logoutUser } = useUser() || {}; // Récupération des infos utilisateur
+  const { user, isLogin, logoutUser } = useUser() || {}; // ✅ Récupération des infos utilisateur
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -39,7 +40,6 @@ const TopNav = () => {
     setAnchorEl(null);
   };
 
-  // ✅ Déconnexion
   const handleLogout = () => {
     logoutUser();
     handleMenuClose();
@@ -73,8 +73,8 @@ const TopNav = () => {
             </AuthSection>
           ) : (
             <ProfileSection onClick={handleMenuOpen}>
-              <ProfilePic />
-              <Username>{user && user.username}</Username> {/* Affichage du nom */}
+              <ProfilePic src={user?.avatar || "/default-avatar.png"} />  {/* ✅ Avatar utilisateur */}
+              <Username>{user?.username || "Utilisateur"}</Username>
               <StyledChevron />
             </ProfileSection>
           )}
@@ -98,3 +98,4 @@ const TopNav = () => {
 };
 
 export default TopNav;
+

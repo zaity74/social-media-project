@@ -1,170 +1,71 @@
-import { useState } from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, TextField, Avatar, IconButton, InputAdornment } from '@mui/material'
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto'
-import { styled } from '@mui/material/styles'
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialog-paper': {
-    borderRadius: '16px',
-    maxWidth: '400px',
-    width: '90%'
-  }
-}))
-
-const BannerContainer = styled(Box)({
-  position: 'relative',
-  width: '100%',
-  height: '120px',
-  backgroundColor: '#f5f5f5',
-  marginBottom: '20px',
-  borderRadius: '8px',
-  overflow: 'hidden'
-})
-
-const BannerImage = styled('img')({
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover'
-})
-
-const BannerUploadButton = styled(IconButton)({
-  position: 'absolute',
-  bottom: 8,
-  right: 8,
-  backgroundColor: '#B2FD27',
-  padding: '8px',
-  '&:hover': {
-    backgroundColor: '#a1e923'
-  },
-  '& .MuiSvgIcon-root': {
-    fontSize: '20px',
-    color: '#000000'
-  }
-})
-
-const AvatarContainer = styled(Box)({
-  position: 'relative',
-  width: 'fit-content',
-  margin: '0 auto 20px'
-})
-
-const StyledAvatar = styled(Avatar)({
-  width: '120px',
-  height: '120px',
-  border: '4px solid #B2FD27'
-})
-
-const UploadButton = styled(IconButton)({
-  position: 'absolute',
-  bottom: 0,
-  right: 0,
-  backgroundColor: '#B2FD27',
-  padding: '8px',
-  '&:hover': {
-    backgroundColor: '#a1e923'
-  },
-  '& .MuiSvgIcon-root': {
-    fontSize: '20px',
-    color: '#000000'
-  }
-})
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useUser } from '../../context/UserContext'; // ✅ Import du contexte
+import { updateUser } from '../../redux/action/userActions';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions, Button,
+  Box, TextField, InputAdornment, CircularProgress, Alert
+} from '@mui/material';
 
 const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
+  const dispatch = useDispatch();
+  const { user } = useUser(); // Récupération des données utilisateur via le contexte
+  const { loading, error, successMessage } = useSelector(state => state.updateUser);
+
+  // Initialisation des champs du formulaire
   const [formData, setFormData] = useState({
-    name: initialData.name || '',
-    username: initialData.username || '',
-    bio: initialData.bio || '',
-    avatarUrl: initialData.avatarUrl || '',
-    bannerUrl: initialData.bannerUrl || ''
-  })
-  const [previewUrl, setPreviewUrl] = useState(initialData.avatarUrl || '')
-  const [bannerPreviewUrl, setBannerPreviewUrl] = useState(initialData.bannerUrl || '')
+    username: initialData.username || user?.username || '',
+    email: initialData.email || user?.email || '',
+    bio: initialData.bio || user?.bio || '',
+    avatar: initialData.avatar || user?.avatar || '',
+    password: '' 
+  });
+
+  useEffect(() => {
+    setFormData({
+      username: initialData.username || user?.username || '',
+      email: initialData.email || user?.email || '',
+      bio: initialData.bio || user?.bio || '',
+      avatar: initialData.avatar || user?.avatar || '',
+      password: ''
+    });
+  }, [initialData, user]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }))
-  }
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setPreviewUrl(url)
-      setFormData(prev => ({
-        ...prev,
-        avatarUrl: file
-      }))
-    }
-  }
-
-  const handleBannerUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setBannerPreviewUrl(url)
-      setFormData(prev => ({
-        ...prev,
-        bannerUrl: file
-      }))
-    }
-  }
+    }));
+  };
 
   const handleSubmit = () => {
-    console.log('Form data to submit:', formData)
-    onClose()
-  }
+    if (!user?.id) {
+      console.error("❌ Erreur : ID utilisateur introuvable !");
+      return;
+    }
+
+    if (!formData.username || !formData.email) return;
+
+    // Si `password` est vide, on ne l'envoie pas dans l'action Redux
+    const updatedData = { ...formData };
+    if (!updatedData.password) delete updatedData.password;
+
+    dispatch(updateUser(user && user.id, updatedData)); // **🚀 Envoie l'ID via `useUser()`**
+  };
 
   return (
-    <StyledDialog open={open} onClose={onClose}>
-      <DialogTitle sx={{ 
-        fontFamily: 'Montserrat',
-        fontWeight: 600,
-        fontSize: '20px',
-        textAlign: 'center'
-      }}>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle sx={{ fontFamily: 'Montserrat', fontWeight: 600, fontSize: '20px', textAlign: 'center' }}>
         Modifier le profil
       </DialogTitle>
+
       <DialogContent>
+        {successMessage && <Alert severity="success">{successMessage}</Alert>}
+        {error && <Alert severity="error">{error}</Alert>}
+
         <Box component="form" sx={{ mt: 2 }}>
-          <BannerContainer>
-            {bannerPreviewUrl && <BannerImage src={bannerPreviewUrl} alt="Banner" />}
-            <BannerUploadButton component="label">
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleBannerUpload}
-              />
-              <AddAPhotoIcon />
-            </BannerUploadButton>
-          </BannerContainer>
-
-          <AvatarContainer>
-            <StyledAvatar src={previewUrl} />
-            <UploadButton component="label">
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
-              <AddAPhotoIcon />
-            </UploadButton>
-          </AvatarContainer>
-
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Nom"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-
+          {/* Nom d'utilisateur */}
           <TextField
             margin="normal"
             fullWidth
@@ -178,6 +79,19 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
             sx={{ mb: 2 }}
           />
 
+          {/* Email (Requis) */}
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+
+          {/* Bio */}
           <TextField
             margin="normal"
             fullWidth
@@ -186,45 +100,45 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
             value={formData.bio}
             onChange={handleChange}
             multiline
-            rows={4}
-            placeholder="Parlez-nous de vous..."
-            sx={{
-              mb: 2,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px'
-              }
-            }}
+            rows={3}
+            sx={{ mb: 2 }}
+          />
+
+          {/* Avatar */}
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Avatar (URL)"
+            name="avatar"
+            value={formData.avatar}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+
+          {/* Mot de passe (optionnel) */}
+          <TextField
+            margin="normal"
+            fullWidth
+            name="password"
+            label="Nouveau mot de passe (laisser vide si inchangé)"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
           />
         </Box>
       </DialogContent>
+
       <DialogActions sx={{ padding: '16px 24px' }}>
-        <Button 
-          onClick={onClose}
-          sx={{
-            color: '#000000',
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)'
-            }
-          }}
-        >
+        <Button onClick={onClose} disabled={loading}>
           Annuler
         </Button>
-        <Button 
-          onClick={handleSubmit}
-          variant="contained"
-          sx={{
-            backgroundColor: '#B2FD27',
-            color: '#000000',
-            '&:hover': {
-              backgroundColor: '#a1e923'
-            }
-          }}
-        >
-          Enregistrer
+        <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: '#B2FD27' }} disabled={loading}>
+          {loading ? <CircularProgress size={20} /> : "Enregistrer"}
         </Button>
       </DialogActions>
-    </StyledDialog>
-  )
-}
+    </Dialog>
+  );
+};
 
-export default ProfileEditPopup
+export default ProfileEditPopup;

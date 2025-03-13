@@ -1,4 +1,5 @@
-import { useUser } from "../../context/UserContext"; // ✅ Import du contexte utilisateur
+import { useSelector } from "react-redux"; // ✅ Import Redux
+import { useUser } from "../../context/UserContext"; // ✅ Import UserContext
 import {
   ProfileContainer,
   ProfileHeader,
@@ -13,33 +14,35 @@ import {
 } from "./ProfileCard.styles";
 
 const ProfileCard = () => {
-  const { user } = useUser(); // ✅ Récupération des infos utilisateur
+  const { user: currentUser } = useUser(); // ✅ Récupère l'utilisateur connecté
+  const { users } = useSelector((state) => state.getUsers); // ✅ Récupère les utilisateurs depuis Redux
+
+  // ✅ Récupérer l'utilisateur connecté dans la liste `getUsers`
+  const fullUserData = users.find((user) => user._id === currentUser?.id) || currentUser;
 
   return (
     <ProfileContainer>
-      {/* Header avec l'avatar et les infos sur une même ligne */}
       <ProfileHeader>
-        <ProfilePicture src={user?.avatarUrl || "/default-avatar.png"} />
+        <ProfilePicture src={fullUserData?.avatar || "/default-avatar.png"} />
         <ProfileInfo>
-          <Username>{user?.username || "Utilisateur"}</Username>
-          <Handle>@{user?.username?.toLowerCase() || "username"}</Handle>
+          <Username>{fullUserData?.username || "Utilisateur"}</Username>
+          <Handle>@{fullUserData?.username?.toLowerCase() || "username"}</Handle>
         </ProfileInfo>
       </ProfileHeader>
 
-      {/* Statistiques */}
       <StatsContainer>
         <StatBox>
-          <StatValue>{user?.postCount || 0}</StatValue>
+          <StatValue>{fullUserData?.postCount || 0}</StatValue>
           <StatLabel>Posts</StatLabel>
         </StatBox>
 
         <StatBox>
-          <StatValue>{user?.followers || 0}</StatValue>
+          <StatValue>{Array.isArray(fullUserData?.followers) ? fullUserData.followers.length : 0}</StatValue>
           <StatLabel>Followers</StatLabel>
         </StatBox>
 
         <StatBox>
-          <StatValue>{user?.following || 0}</StatValue>
+          <StatValue>{Array.isArray(fullUserData?.following) ? fullUserData.following.length : 0}</StatValue>
           <StatLabel>Following</StatLabel>
         </StatBox>
       </StatsContainer>

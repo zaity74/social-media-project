@@ -35,7 +35,7 @@ const ProfilePageHeader = () => {
       <HeaderContainer>
         <BannerContainer>
           <ProfilePictureWrapper>
-            <ProfilePicture src={user?.avatarUrl || "/default-avatar.png"} alt="Avatar" />
+            <ProfilePicture src={user?.avatar || "/default-avatar.png"} alt="Avatar" />
           </ProfilePictureWrapper>
 
           {isLogin && (

@@ -1,17 +1,17 @@
-import { Box, Typography, Avatar, Button, useTheme } from '@mui/material';
+import { Box, Typography, Avatar, Button, useTheme } from "@mui/material";
 
-const SoloItem = ({ avatar, username, description, showFollowButton }) => {
+const SoloItem = ({ avatar, username, description, showFollowButton, onFollowClick, onUnfollowClick, isFollowing }) => {
   const theme = useTheme();
 
   return (
     <Box 
       sx={{ 
-        display: 'flex', 
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '10px', 
-        width: '100%', 
-        padding: '10px 0',
+        display: "flex", 
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "10px", 
+        width: "100%", 
+        padding: "10px 0",
       }}
     >
       {/* Avatar */}
@@ -24,9 +24,9 @@ const SoloItem = ({ avatar, username, description, showFollowButton }) => {
       <Box sx={{ flexGrow: 1 }}> 
         <Typography 
           sx={{
-            fontFamily: 'Joti One',
+            fontFamily: "Joti One",
             fontWeight: 400,
-            fontSize: '12px',
+            fontSize: "12px",
             color: theme.palette.text.primary,
           }}
         >
@@ -37,9 +37,9 @@ const SoloItem = ({ avatar, username, description, showFollowButton }) => {
             sx={{
               fontFamily: theme.typography.fontFamily.Montserrat,
               fontWeight: 400,
-              fontSize: '12px',
+              fontSize: "12px",
               color: theme.palette.text.secondary, 
-              mt: '2px',
+              mt: "2px",
             }}
           >
             {description}
@@ -47,10 +47,22 @@ const SoloItem = ({ avatar, username, description, showFollowButton }) => {
         )}
       </Box>
 
-      {/* Bouton Suivre */}
+      {/* Bouton Suivre/Désabonner */}
       {showFollowButton && (
-        <Button variant="follow">
-          Suivre
+        <Button 
+          variant="follow"
+          onClick={isFollowing ? onUnfollowClick : onFollowClick}
+          sx={{
+            fontSize: "12px",
+            textTransform: "none",
+            backgroundColor: isFollowing ? "#D7E9FB" : "#0B0E13",
+            "&:hover": {
+              backgroundColor: isFollowing ? "transparent" : "#D7E9FB",
+            },
+          }}
+        >
+          {isFollowing ? "Suivi" : "Suivre"}
+
         </Button>
       )}
     </Box>

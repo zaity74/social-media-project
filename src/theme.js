@@ -10,7 +10,7 @@ export const getTheme = (isDarkMode) => {
   return createTheme({
     palette: { 
       mode: isDarkMode ? "dark" : "light",
-      primary: { main: '#0B0E13' },
+      primary: { main: '#0B0E13'   },
       secondary: { main: '#D7E9FB' },
       secondaryActive: { default: '#56A1EC' },
       background: { default: backgroundColor },

@@ -12,12 +12,17 @@ export const BannerContainer = styled(Box)(({ theme }) => ({
   width: '100%',
   height: '120px',
   backgroundColor: theme.palette.background.default,
+  backgroundImage: 'url("https://images.pexels.com/photos/2156/sky-earth-space-working.jpg?auto=compress&cs=tinysrgb&w=600")', // ✅ Ajout de l'image de fond
+  backgroundSize: 'cover',  // ✅ L'image couvre tout le conteneur
+  backgroundPosition: 'center', // ✅ Centre l'image
+  backgroundRepeat: 'no-repeat', // ✅ Empêche la répétition
   position: 'relative', 
   display: 'flex',
   alignItems: 'flex-end',
   justifyContent: "space-between",
   padding: "0px 12px",
 }));
+
 
 export const ProfilePictureWrapper = styled(Box)({
   // position: 'absolute',
