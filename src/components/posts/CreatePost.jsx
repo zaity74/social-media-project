@@ -11,7 +11,6 @@ import {
   Stack,
   Typography,
   TextField,
-  Chip,
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
@@ -23,8 +22,7 @@ import { useUser } from "../../context/UserContext";
 const CreatePost = ({ onPostCreated }) => {
   const [message, setMessage] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [hashtags, setHashtags] = useState([]); // État pour stocker les hashtags
-  const [hashtagInput, setHashtagInput] = useState(""); // Champ d'entrée de hashtag
+  const [hashtags, setHashtags] = useState("");  // ✅ Stockage en string simple
   const [showImageInput, setShowImageInput] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const theme = useTheme();
@@ -35,56 +33,37 @@ const CreatePost = ({ onPostCreated }) => {
     setMessage((prev) => prev + emoji.native);
   };
 
-  // ✅ Ajout d'un hashtag à la liste
-  const handleAddHashtag = (event) => {
-    if (event.key === "Enter" && hashtagInput.trim() !== "") {
-      const formattedHashtag = hashtagInput.trim().toLowerCase();
-      if (!formattedHashtag.startsWith("#")) {
-        setHashtags([...hashtags, `#${formattedHashtag}`]); // Ajoute "#" devant si absent
-      } else {
-        setHashtags([...hashtags, formattedHashtag]);
-      }
-      setHashtagInput("");
-    }
-  };
-
-  // Supprimer un hashtag de la liste
-  const handleRemoveHashtag = (tag) => {
-    setHashtags(hashtags.filter((hashtag) => hashtag !== tag));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!currentUser || !currentUser._id) {
       console.error("❌ Erreur : Aucun utilisateur connecté.");
       return;
     }
-  
+
     const newPost = {
       content: message,
       image: imageUrl || "",
       author: currentUser._id,
-      hashtags, // ✅ Vérifie que les hashtags sont bien envoyés
+      hashtags: hashtags.trim(),  // ✅ Envoi en tant que string unique
     };
-  
-    console.log("📤 Données envoyées au serveur :", newPost); // ✅ Vérification
-  
+
+    console.log("📤 Données envoyées au serveur :", newPost);
+
     try {
-      const createdPost = await dispatch(createPost(newPost)); // ✅ Création du post
+      const createdPost = await dispatch(createPost(newPost)); 
       if (onPostCreated) {
-        onPostCreated(createdPost); // ✅ Mise à jour locale immédiate
+        onPostCreated(createdPost);
       }
     } catch (error) {
       console.error("Erreur lors de la création du post", error);
     }
-  
+
     setMessage("");
     setImageUrl("");
-    setHashtags([]); // ✅ Réinitialisation correcte
+    setHashtags("");  // ✅ Réinitialisation du champ hashtags
     setShowImageInput(false);
   };
-  
 
   return (
     <Paper sx={{ borderRadius: "24px", padding: "20px", backgroundColor: theme.palette.backgroundWhite.default }}>
@@ -92,6 +71,7 @@ const CreatePost = ({ onPostCreated }) => {
         <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
           <Avatar />
           <Box sx={{ flexGrow: 1 }}>
+            {/* ✅ Zone de texte pour écrire un message */}
             <Paper
               variant="outlined"
               sx={{
@@ -108,15 +88,19 @@ const CreatePost = ({ onPostCreated }) => {
                 onChange={(e) => setMessage(e.target.value)}
                 multiline
                 minRows={2}
-                sx={{
-                  fontSize: "14px",
-                  "&::placeholder": {
-                    color: theme.palette.text.secondary,
-                    opacity: 0.6,
-                  },
-                }}
               />
             </Paper>
+
+            {/* ✅ Champ pour entrer les hashtags sous forme de string */}
+            <TextField
+              fullWidth
+              variant="outlined"
+              size="small"
+              placeholder="Ajouter des hashtags (ex: #football #news)"
+              value={hashtags}
+              onChange={(e) => setHashtags(e.target.value)}
+              sx={{ mt: 2 }}
+            />
 
             {/* ✅ Champ pour entrer l'URL de l'image */}
             {showImageInput && (
@@ -127,11 +111,11 @@ const CreatePost = ({ onPostCreated }) => {
                 placeholder="Coller l'URL de l'image ici..."
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                sx={{ mt: 1 }}
+                sx={{ mt: 2 }}
               />
             )}
 
-            {/* ✅ Affichage de l'aperçu de l'image si une URL est saisie */}
+            {/* ✅ Aperçu de l'image si une URL est saisie */}
             {imageUrl && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "12px", mb: 1 }}>
@@ -141,28 +125,9 @@ const CreatePost = ({ onPostCreated }) => {
               </Box>
             )}
 
-            {/* ✅ Champ pour entrer les hashtags */}
-            <TextField
-              fullWidth
-              variant="outlined"
-              size="small"
-              placeholder="Ajouter un hashtag (#football, #tech)..."
-              value={hashtagInput}
-              onChange={(e) => setHashtagInput(e.target.value)}
-              onKeyDown={handleAddHashtag}
-              sx={{ mt: 2 }}
-            />
-
-            {/* ✅ Liste des hashtags sous forme de "Chips" */}
-            <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap" }}>
-              {hashtags.map((tag, index) => (
-                <Chip key={index} label={tag} onDelete={() => handleRemoveHashtag(tag)} />
-              ))}
-            </Stack>
-
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
               <Stack direction="row" spacing={2} alignItems="center">
-                {/* ✅ Bouton pour ajouter une image via URL */}
+                {/* ✅ Bouton pour afficher le champ d'ajout d'image */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <IconButton color="primary" onClick={() => setShowImageInput(!showImageInput)}>
                     <ImageIcon />
