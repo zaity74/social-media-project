@@ -6,8 +6,8 @@ import { getUsersReducer } from "./reducer/userReducer";
 import { userUpdateReducer } from "./reducer/userReducer";
 import { followUserReducer } from "./reducer/userReducer";
 import { unfollowUserReducer } from "./reducer/userReducer";
-import { combineReducers } from "@reduxjs/toolkit";
-import { configureStore } from "@reduxjs/toolkit";
+import { createPostReducer } from "./reducer/postReducer";
+import { getAllPostReducer } from "./reducer/postReducer";
 
 const rootReducer = combineReducers({
   
@@ -17,7 +17,8 @@ const rootReducer = combineReducers({
   updateUser: userUpdateReducer,
   followUser: followUserReducer,
   unfollowUser: unfollowUserReducer,
-  iaTreatment : iaTreatmentReducer
+  createPost : createPostReducer,
+  getAllPost : getAllPostReducer,
 });
  
 const initialState = {};

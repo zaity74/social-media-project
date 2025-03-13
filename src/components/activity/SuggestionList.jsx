@@ -9,7 +9,7 @@ import { getUsers, followUser, unfollowUser } from "../../redux/action/userActio
 const SuggestionList = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { user: currentUser, updateUserData } = useUser(); // ✅ Récupère `updateUserData`
+  const { user: currentUser, updateUserData } = useUser(); // Récupère `updateUserData`
   const [openDialog, setOpenDialog] = useState(false);
 
   const { users, loading, error } = useSelector((state) => state.getUsers);
@@ -18,30 +18,30 @@ const SuggestionList = () => {
     dispatch(getUsers());
   }, [dispatch]);
 
-  // ✅ Récupérer l'utilisateur connecté depuis Redux
+  // Récupérer l'utilisateur connecté depuis Redux
   const fullUserData = users.find((user) => user._id === currentUser?.id) || currentUser;
 
   const handleDialogToggle = () => {
     setOpenDialog((prev) => !prev);
   };
 
-  // ✅ Suivre un utilisateur et mettre à jour Redux
+  // Suivre un utilisateur et mettre à jour Redux
   const handleFollow = async (targetUserId) => {
     if (!fullUserData || !fullUserData._id) {
       console.error("❌ Impossible de suivre : ID utilisateur introuvable.");
       return;
     }
 
-    console.log("📌 Envoi du follow :", fullUserData._id, "➡", targetUserId);
+    console.log("Envoi du follow :", fullUserData._id, "➡", targetUserId);
     await dispatch(followUser(fullUserData._id, targetUserId));
 
-    // ✅ Mise à jour Redux et UserContext
+    // Mise à jour Redux et UserContext
     const updatedUser = {
       ...fullUserData,
       following: [...(fullUserData.following || []), targetUserId],
     };
     updateUserData(updatedUser);
-    dispatch(getUsers()); // ✅ Recharge les utilisateurs après un follow
+    dispatch(getUsers()); // Recharge les utilisateurs après un follow
   };
 
   // ✅ Se désabonner et mettre à jour Redux
@@ -54,20 +54,20 @@ const SuggestionList = () => {
     console.log("📌 Envoi du unfollow :", fullUserData._id, "❌", targetUserId);
     await dispatch(unfollowUser(fullUserData._id, targetUserId));
 
-    // ✅ Mise à jour Redux et UserContext
+    // Mise à jour Redux et UserContext
     const updatedUser = {
       ...fullUserData,
       following: (fullUserData.following || []).filter((id) => id !== targetUserId),
     };
     updateUserData(updatedUser);
-    dispatch(getUsers()); // ✅ Recharge les utilisateurs après un unfollow
+    dispatch(getUsers()); // Recharge les utilisateurs après un unfollow
   };
 
   if (loading) return <p>🔄 Chargement des suggestions...</p>;
   if (error) return <p>❌ Erreur : {error}</p>;
   if (!users || users.length === 0) return <p>😕 Aucun utilisateur à suggérer.</p>;
 
-  // ✅ Exclure l'utilisateur connecté et mettre à jour `isFollowing`
+  // Exclure l'utilisateur connecté et mettre à jour `isFollowing`
   const formattedUsers = users
     .filter((user) => user._id !== fullUserData._id)
     .map((user) => ({
