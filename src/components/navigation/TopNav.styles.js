@@ -81,11 +81,12 @@ export const DarkModeButton = styled(IconButton)(({ theme }) => ({
 }));
 
 // Authentification
-export const AuthSection = styled(Box)({
+export const AuthSection = styled(Box)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-});
+    color: theme.palette.primary.main,
+}));
 
 export const StyledLink = styled(Link)(({ theme }) => ({
     textDecoration: 'none',
@@ -104,6 +105,7 @@ export const ProfileSection = styled(Box)({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    cursor: "pointer"
 });
 
 export const ProfilePic = styled(Avatar)({

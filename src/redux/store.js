@@ -1,9 +1,10 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import { userRegister } from "./action/authAction";
 import { userRegisterReducer } from "./reducer/authReducer";
+import { userLoginReducer } from "./reducer/authReducer";
 
 const rootReducer = combineReducers({
-    userRegister: userRegisterReducer,
+  userRegister: userRegisterReducer,
+  userLogin: userLoginReducer
 });
  
 const initialState = {};

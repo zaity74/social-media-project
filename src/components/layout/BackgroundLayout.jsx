@@ -1,8 +1,8 @@
 import { Box, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles'; // ✅ Import du thème
 import { useDarkMode } from '../../context/DarkModeContext';
-import backgroundLight from '../../assets/BackgroundDark4.jpg';
-import backgroundDark from '../../assets/BackgroundDark4.jpg';
+import backgroundLight from '../../assets/Background3.jpg';
+import backgroundDark from '../../assets/Background3.jpg';
 
 const BackgroundLayout = () => {
   const { isDarkMode } = useDarkMode();

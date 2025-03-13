@@ -1,4 +1,4 @@
-import { Box, Typography, Stack, Button } from '@mui/material';
+import { Box, Typography, Stack, Button, Link } from '@mui/material';
 import { NavContainer, NavItem, CreatePostButton } from './LeftNav.styles';
 import GridViewIcon from '@mui/icons-material/GridView';
 import PersonIcon from '@mui/icons-material/Person';
@@ -13,12 +13,12 @@ const LeftNav = () => {
       <Stack spacing={2} display="flex" flexDirection="column" gap="20px">
         <NavItem active>
           <GridViewIcon />
-          <Typography>Accueil</Typography>
+          <Link href='/'><Typography>Accueil</Typography></Link>
         </NavItem>
 
         <NavItem>
           <PersonIcon />
-          <Typography>Profil</Typography>
+          <Link href='/profil'><Typography>Profil</Typography></Link>
         </NavItem>
 
         <NavItem>
