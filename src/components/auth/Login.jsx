@@ -17,7 +17,8 @@ import { userLogin } from '../../redux/action/authAction';
 
 const Login = () => {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
+  
   // ** Récupérer les données du reducer Login **
   const { user, loading, error, isLogin } = useSelector((state) => state.userLogin);
 
@@ -34,9 +35,14 @@ const Login = () => {
   };
 
   // ** Soumission du formulaire **
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(userLogin(formData.email, formData.password));
+    try {
+      await dispatch(userLogin(formData.email, formData.password));
+      navigate('/');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
