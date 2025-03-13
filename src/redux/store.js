@@ -27,7 +27,8 @@ const rootReducer = combineReducers({
   getAllPost : getAllPostReducer,
   deletePoste : deletePostReducer,
   countUserPost : postCountReducer,
-  postsByUser : postsByUserReducer
+  postsByUser : postsByUserReducer,
+  iaTreatment : iaTreatmentReducer
 });
  
 const initialState = {};

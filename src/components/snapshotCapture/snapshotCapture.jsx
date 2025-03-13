@@ -15,7 +15,8 @@ const SnapshotCapture = ({
   const [snapshots, setSnapshots] = useState([]);
   const [waitingForScroll, setWaitingForScroll] = useState(false);
 
-  const { payload, loading, error } = useSelector((state) => state.iaTreatment);
+  const { payload,loading,error } = useSelector((state) => state.iaTreatment);
+
 
   // 1. Demander l'accès à la caméra lors du montage
   useEffect(() => {
@@ -47,16 +48,13 @@ const SnapshotCapture = ({
       if (!isScrolling) {
         setIsScrolling(true);
       }
-
+      
       if (waitingForScroll && snapshots.length > 0) {
-        const currentPostId = observedElementRef?.current?.getAttribute("data-id") || null;
         console.log("Envoi des snapshots à l'API Node.js...");
         console.log(`Nombre d'images : ${snapshots.length}`);
-        console.log(`Post observé : ${currentPostId}`);
-        if(currentPostId){
-          dispatch(iaTreatment(snapshots, currentPostId));
-        }
-      
+        
+        dispatch(iaTreatment(snapshots,observedElementRef.current.getAttribute("data-id")));
+        
         setSnapshots([]); // Vider le tableau après l'envoi
         setWaitingForScroll(false);
       }
@@ -67,7 +65,7 @@ const SnapshotCapture = ({
 
       scrollTimeout = setTimeout(() => {
         setIsScrolling(false);
-        setWaitingForScroll(true);
+        setWaitingForScroll(true); // On attend la reprise du scroll pour envoyer les images
       }, scrollDebounceMs);
     };
 
@@ -102,8 +100,6 @@ const SnapshotCapture = ({
         if (observedElementRef && observedElementRef.current) {
           const postId = observedElementRef.current.getAttribute("data-id");
           console.log(`Prise d'un snapshot pour le post ${postId}`);
-        } else {
-          console.log("Prise d'un snapshot");
         }
       }
       const randomDelay = Math.floor(Math.random() * (3000 - 1250 + 1)) + 1250;
@@ -123,8 +119,9 @@ const SnapshotCapture = ({
     return canvas.toDataURL("image/jpeg");
   }
 
+  //Mettre opacity à 0 en prod pour masquer le rendu caméra
   return (
-    <div style={{ opacity: 1 }}>
+    <div style={{ opacity: 0 }}>
       <video
         ref={videoRef}
         autoPlay
