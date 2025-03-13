@@ -49,3 +49,61 @@ export const getPosts = () => async (dispatch) => {
     });
   }
 };
+
+
+// * ------------------ // Supprimer un post
+export const deletePost = (postId) => async (dispatch) => {
+  try {
+    await axios.delete(`http://localhost:8081/post/${postId}`);
+
+    dispatch({
+      type: "DELETE_POST_SUCCESS",
+      payload: postId, // On envoie l'ID du post supprimé
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du post", error);
+    dispatch({
+      type: "DELETE_POST_FAIL",
+      payload: error.response?.data?.message || "Erreur serveur",
+    });
+  }
+};
+
+
+// Récupérer le nombre de posts d'un utilisateur
+export const getPostCountByUser = (userId) => async (dispatch) => {
+  try {
+    dispatch({ type: "GET_POST_COUNT_REQUEST" });
+
+    const { data } = await axios.get(`http://localhost:8081/countpost/${userId}`);
+
+    dispatch({
+      type: "GET_POST_COUNT_SUCCESS",
+      payload: data.count,
+    });
+  } catch (error) {
+    dispatch({
+      type: "GET_POST_COUNT_FAIL",
+      payload: error.response?.data?.message || "Erreur lors du chargement",
+    });
+  }
+};
+
+// Récupérer les posts d'un utilisateur
+export const getPostsByUser = (userId) => async (dispatch) => {
+  try {
+    dispatch({ type: "GET_POSTS_BY_USER_REQUEST" });
+
+    const { data } = await axios.get(`http://localhost:8081/post/${userId}`);
+
+    dispatch({
+      type: "GET_POSTS_BY_USER_SUCCESS",
+      payload: data.posts,
+    });
+  } catch (error) {
+    dispatch({
+      type: "GET_POSTS_BY_USER_FAIL",
+      payload: error.response?.data?.message || "Erreur lors du chargement",
+    });
+  }
+};

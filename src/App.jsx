@@ -14,14 +14,14 @@ import './App.css';
 // ✅ Composant de protection des routes
 const ProtectedRoute = ({ element }) => {
   const { isLogin } = useUser();
-  return isLogin ? element : element;
+  return isLogin ? element : <Navigate to="/login" />;
 };
 
 import { UserProvider } from "./context/UserContext";
 
 function App() {
   return (
-    <UserProvider> {/* ✅ Ajout du Provider */}
+    <UserProvider> {/* Ajout du Provider */}
       <DarkModeProvider>
         <Router>
           <BackgroundLayout />

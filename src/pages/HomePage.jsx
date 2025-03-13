@@ -15,7 +15,6 @@ import {
   SortMenu,
   SortMenuItem,
 } from "./HomePage.styles";
-import SnapshotCapture from "../components/snapshotCapture/snapshotCapture";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -23,10 +22,30 @@ const HomePage = () => {
 
   // Charger les posts depuis Redux
   const { posts, loading, error } = useSelector((state) => state.getAllPost);
-  
+
+  // État local pour afficher dynamiquement les nouveaux posts
+  const [localPosts, setLocalPosts] = useState([]);
+
   useEffect(() => {
     dispatch(getPosts()); // Charger les posts au montage
   }, [dispatch]);
+
+  // Initialisation de localPosts avec Redux une seule fois
+  useEffect(() => {
+    if (posts.length > 0) {
+      setLocalPosts(posts);
+    }
+  }, [posts]);
+
+  // Met à jour localPosts quand un post est publié sans recharger la page
+  const handlePostCreated = (newPost) => {
+    setLocalPosts([newPost, ...localPosts]); // Ajoute le post en haut de la liste
+  };
+
+  // 🔥 Mise à jour locale après suppression d’un post
+  const handlePostDeleted = (postId) => {
+    setLocalPosts(localPosts.filter((post) => post._id !== postId));
+  };
 
   const [sortBy, setSortBy] = useState("recent");
   const [anchorEl, setAnchorEl] = useState(null);
@@ -50,7 +69,7 @@ const HomePage = () => {
       case "recent":
         return "Récents";
       case "popular":
-        return "Populaire";
+        return "Populaires";
       case "followed":
         return "Suivis";
       default:
@@ -60,7 +79,8 @@ const HomePage = () => {
 
   return (
     <MainLayout>
-      <CreatePost />
+      {/* ✅ On passe `handlePostCreated` à `CreatePost` */}
+      <CreatePost onPostCreated={handlePostCreated} />
 
       <SortContainer>
         <SortButton
@@ -96,26 +116,23 @@ const HomePage = () => {
         </SortMenu>
       </SortContainer>
 
+      
       <PostsStack>
         <Stack spacing={2}>
-          {/* Affichage dynamique des posts */}
+          {/* ✅ On affiche `localPosts` au lieu de `posts` */}
           {loading ? (
             <p>Chargement...</p>
           ) : error ? (
             <p>Erreur : {error}</p>
-          ) : posts.length === 0 ? (
+          ) : localPosts.length === 0 ? (
             <p>Aucun post disponible.</p>
           ) : (
-            posts.map((post) => <PostCard key={post._id} post={post} />)
+            localPosts.map((post) => (
+              <PostCard key={post._id} post={post} onPostDeleted={handlePostDeleted} />
+            ))
           )}
         </Stack>
-
-        <SnapshotCapture
-          observedElementRef={{
-            current: document.querySelector(`[data-id="${currentTweetId}"]`),
-          }}
-        />
-    </PostsStack> {/* ✅ Fermeture correcte ici */}
+      </PostsStack>
     </MainLayout>
   );
 };

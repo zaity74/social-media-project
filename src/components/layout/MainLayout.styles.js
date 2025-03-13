@@ -55,13 +55,13 @@ export const MainContent = styled(Box)({
   flexDirection: 'column',
   alignItems: 'center',
   overflowY: 'auto',
-  maxHeight: '110vh',
+  // maxHeight: '110vh',
   // Hide scrollbar
-  msOverflowStyle: 'none',
-  scrollbarWidth: 'none',
-  '&::-webkit-scrollbar': {
-    display: 'none'
-  }
+  // msOverflowStyle: 'none',
+  // scrollbarWidth: 'none',
+  // '&::-webkit-scrollbar': {
+  //   display: 'none'
+  // }
 });
 
 export const RightSidebar = styled(Box)(({ theme }) => ({

@@ -10,7 +10,7 @@ export const getUsers = () => async (dispatch) => {
   try {
     dispatch({ type: "GET_USERS_REQUEST" });
 
-    //const response = await axios.get("http://localhost:8081/user");
+    const response = await axios.get("http://localhost:8081/user");
     
     console.log("🛠️ Utilisateurs récupérés depuis l'API :", response.data);
 

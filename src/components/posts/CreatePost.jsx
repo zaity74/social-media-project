@@ -13,28 +13,26 @@ import {
   TextField
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
-import VideocamIcon from "@mui/icons-material/Videocam";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
 import { createPost } from "../../redux/action/postActions";
-import { useUser } from "../../context/UserContext"; // Récupération de l'utilisateur connecté
+import { useUser } from "../../context/UserContext";
 
-const CreatePost = () => {
+const CreatePost = ({ onPostCreated }) => {
   const [message, setMessage] = useState("");
-  const [imageUrl, setImageUrl] = useState(""); // Stocke l'URL de l'image
-  const [showImageInput, setShowImageInput] = useState(false); // Affiche le champ URL après un clic
+  const [imageUrl, setImageUrl] = useState("");
+  const [showImageInput, setShowImageInput] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { user: currentUser } = useUser(); // Récupération du user connecté
+  const { user: currentUser } = useUser();
 
   const handleEmojiSelect = (emoji) => {
     setMessage((prev) => prev + emoji.native);
   };
 
-  // Fonction pour publier un post
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!currentUser || !currentUser._id) {
@@ -44,24 +42,24 @@ const CreatePost = () => {
 
     const newPost = {
       content: message,
-      image: imageUrl, // Ajoute l'image au post
+      image: imageUrl, // Ajoute l'image si renseignée
       author: currentUser._id,
     };
 
-    dispatch(createPost(newPost)); // Envoi du post à Redux
-    setMessage(""); // Réinitialisation du champ message
-    setImageUrl(""); // Réinitialisation de l'URL image
-    setShowImageInput(false); // Masquer l'input après la soumission
+    try {
+      const response = await dispatch(createPost(newPost)); // Envoi Redux
+      onPostCreated(response.payload); // Mise à jour locale immédiate
+    } catch (error) {
+      console.error("Erreur lors de la création du post", error);
+    }
+
+    setMessage("");
+    setImageUrl("");
+    setShowImageInput(false);
   };
 
   return (
-    <Paper
-      sx={{
-        borderRadius: "24px",
-        padding: "20px",
-        backgroundColor: theme.palette.backgroundWhite.default,
-      }}
-    >
+    <Paper sx={{ borderRadius: "24px", padding: "20px", backgroundColor: theme.palette.backgroundWhite.default }}>
       <form onSubmit={handleSubmit}>
         <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
           <Avatar />
@@ -71,7 +69,6 @@ const CreatePost = () => {
               sx={{
                 borderRadius: "34px",
                 backgroundColor: theme.palette.background.default,
-                fontFamily: theme.typography.fontFamily.Montserrat,
                 display: "flex",
                 alignItems: "center",
               }}
@@ -85,7 +82,6 @@ const CreatePost = () => {
                 minRows={2}
                 sx={{
                   fontSize: "14px",
-                  fontFamily: theme.typography.fontFamily.Montserrat,
                   "&::placeholder": {
                     color: theme.palette.text.secondary,
                     opacity: 0.6,
@@ -126,15 +122,6 @@ const CreatePost = () => {
                   </IconButton>
                   <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "12px" }}>
                     Image
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <IconButton color="primary">
-                    <VideocamIcon />
-                  </IconButton>
-                  <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "12px" }}>
-                    Vidéo
                   </Typography>
                 </Box>
 

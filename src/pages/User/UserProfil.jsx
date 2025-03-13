@@ -1,37 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Stack } from "@mui/material";
 import MainLayout from "../../components/layout/MainLayout";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import { useDarkMode } from "../../context/DarkModeContext";
 import ProfilePageHeader from "../../components/profile/ProfilePage";
 import PostCard from "../../components/posts/PostCard";
+import { PostsStack } from "../HomePage.styles";
+import { getPostsByUser } from "../../redux/action/postActions";
+import { useUser } from "../../context/UserContext";
 
-import { 
-  PostsStack
- } from "../HomePage.styles";
 const UserProfile = () => {
-  const [sortBy, setSortBy] = useState("recent");
-  useDarkMode(); 
+  const dispatch = useDispatch();
+  const { user: currentUser } = useUser(); // ✅ Récupère l'utilisateur connecté
 
-  const posts = [
-    { id: 1, username: "User1", content: "Premier post test", timestamp: "il y a 5 minutes" },
-    { id: 2, username: "User2", content: "Deuxième post test", timestamp: "il y a 10 minutes" },
-  ];
+  // ✅ Récupère les posts de l'utilisateur depuis Redux
+  const { userPosts, loading, error } = useSelector((state) => state.postsByUser);
 
+  useEffect(() => {
+    if (currentUser?._id) {
+      dispatch(getPostsByUser(currentUser._id));
+    }
+  }, [dispatch, currentUser]);
 
   return (
     <MainLayout>
-
-      <ProfilePageHeader></ProfilePageHeader>
+      <ProfilePageHeader />
 
       <PostsStack>
         <Stack spacing={2}>
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {loading ? (
+            <p>Chargement...</p>
+          ) : error ? (
+            <p>Erreur : {error}</p>
+          ) : userPosts.length === 0 ? (
+            <p>Aucun post disponible.</p>
+          ) : (
+            userPosts.map((post) => <PostCard key={post._id} post={post} />)
+          )}
         </Stack>
       </PostsStack>
-
     </MainLayout>
   );
 };

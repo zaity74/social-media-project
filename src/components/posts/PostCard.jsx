@@ -27,6 +27,7 @@ import {
   CommentBox,
 } from "./PostCard.styles";
 // import { likePost } from "../../redux/action/postActions";
+import { deletePost } from "../../redux/action/postActions";
 import { useUser } from "../../context/UserContext";
 
 const PostCard = ({ post }) => {
@@ -59,10 +60,16 @@ const PostCard = ({ post }) => {
     handleMenuClose();
   };
 
-  const handleDelete = () => {
-    console.log("Supprimer le post");
-    handleMenuClose();
-  };
+    // Supprimer le post et mettre à jour l'état local
+    const handleDelete = async () => {
+      try {
+        await dispatch(deletePost(post._id));
+        onPostDeleted(post._id); // ✅ Mise à jour immédiate
+      } catch (error) {
+        console.error("Erreur lors de la suppression :", error);
+      }
+      handleMenuClose();
+    };
 
   // // Gérer les likes
   // const handleLike = () => {
