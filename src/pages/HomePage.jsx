@@ -6,7 +6,8 @@ import CreatePost from "../components/posts/CreatePost";
 import PostCard from "../components/posts/PostCard";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import { useDarkMode } from "../context/DarkModeContext";
-import { getPosts } from "../redux/action/postActions"; // ✅ Import de l'action getPosts
+import { getPosts } from "../redux/action/postActions"; // ✅ Import de l'action Redux
+
 import {
   SortContainer,
   SortButton,
@@ -18,35 +19,35 @@ import {
 
 const HomePage = () => {
   const dispatch = useDispatch();
-  useDarkMode(); 
+  useDarkMode();
 
-  // Charger les posts depuis Redux
+  // 🔥 Charger les posts depuis Redux
   const { posts, loading, error } = useSelector((state) => state.getAllPost);
 
-  // État local pour afficher dynamiquement les nouveaux posts
+  // 🔥 État local pour afficher dynamiquement les posts
   const [localPosts, setLocalPosts] = useState([]);
 
   useEffect(() => {
     dispatch(getPosts()); // Charger les posts au montage
   }, [dispatch]);
 
-  // Initialisation de localPosts avec Redux une seule fois
   useEffect(() => {
     if (posts.length > 0) {
       setLocalPosts(posts);
     }
   }, [posts]);
 
-  // Met à jour localPosts quand un post est publié sans recharger la page
+  // ✅ Ajout d'un post sans rechargement
   const handlePostCreated = (newPost) => {
-    setLocalPosts([newPost, ...localPosts]); // Ajoute le post en haut de la liste
+    setLocalPosts((prevPosts) => [newPost, ...prevPosts]); // Ajoute en haut de la liste
   };
 
-  // 🔥 Mise à jour locale après suppression d’un post
-  const handlePostDeleted = (postId) => {
-    setLocalPosts(localPosts.filter((post) => post._id !== postId));
+  // ✅ Suppression dynamique d'un post
+  const handlePostDeleted = (deletedPostId) => {
+    setLocalPosts((prevPosts) => prevPosts.filter((post) => post._id !== deletedPostId));
   };
 
+  // Gestion du tri des posts
   const [sortBy, setSortBy] = useState("recent");
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -116,7 +117,6 @@ const HomePage = () => {
         </SortMenu>
       </SortContainer>
 
-      
       <PostsStack>
         <Stack spacing={2}>
           {/* ✅ On affiche `localPosts` au lieu de `posts` */}

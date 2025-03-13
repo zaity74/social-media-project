@@ -8,21 +8,20 @@
   };
   
   // Reducer pour gérer la création de post
+  // Reducer pour gérer la création de post
   export const createPostReducer = (state = createPostinitialState, action) => {
     switch (action.type) {
-      case 'CREATE_POST_REQUEST':
+      case "GET_POSTS_REQUEST":
         return { ...state, loading: true };
   
-      case 'CREATE_POST_SUCCESS':
-        return {
-          ...state,
-          loading: false,
-          posts: [action.payload, ...state.posts], // Ajoute le nouveau post en haut
-        };
+      case "GET_POSTS_SUCCESS":
+        return { ...state, posts: action.payload, loading: false };
   
-      case 'CREATE_POST_FAILURE':
-        return { ...state, loading: false, error: action.payload };
+      case "CREATE_POST_SUCCESS":
+        return { ...state, posts: [action.payload, ...state.posts] }; // 🔥 Ajoute directement le nouveau post
   
+      case "CREATE_POST_FAIL":
+
       default:
         return state;
     }

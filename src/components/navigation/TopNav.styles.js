@@ -8,7 +8,7 @@ export const StyledAppBar = styled(AppBar)(({ theme }) => ({
     width: '100%',
     position: 'fixed',
     top: 0,
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.backgroundDark.default,
     boxShadow: 'none',
     padding: '0px 20px',
 }));
@@ -119,7 +119,7 @@ export const Username = styled(Typography)(({ theme }) => ({
     fontFamily: theme.typography.fontFamily.JotiOne,
     fontWeight: 400,
     fontSize: '16px',
-    color: '#000000',
+    color: theme.palette.primary.main,
 }));
 
 export const StyledChevron = styled(KeyboardArrowDownIcon)({

@@ -1,5 +1,6 @@
 import { Box, Typography, Stack, Button, Link } from '@mui/material';
 import { NavContainer, NavItem, CreatePostButton } from './LeftNav.styles';
+import { useLocation } from 'react-router-dom'; // ✅ Import du hook useLocation
 import GridViewIcon from '@mui/icons-material/GridView';
 import PersonIcon from '@mui/icons-material/Person';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -8,41 +9,59 @@ import PeopleIcon from '@mui/icons-material/People';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const LeftNav = () => {
+  const location = useLocation(); // ✅ Permet de récupérer l'URL actuelle
+
+  // ✅ Fonction pour déterminer si un lien est actif
+  const isActive = (path) => location.pathname === path;
+
   return (
     <NavContainer>
       <Stack spacing={2} display="flex" flexDirection="column" gap="20px">
-        <NavItem active>
+        
+        <NavItem active={isActive('/')}>
           <GridViewIcon />
-          <Link href='/'><Typography>Accueil</Typography></Link>
+          <Link href="/" underline="none">
+            <Typography>Accueil</Typography>
+          </Link>
         </NavItem>
 
-        <NavItem>
+        <NavItem active={isActive('/profil')}>
           <PersonIcon />
-          <Link href='/profil'><Typography>Profil</Typography></Link>
+          <Link href="/profil" underline="none">
+            <Typography>Profil</Typography>
+          </Link>
         </NavItem>
 
-        <NavItem>
+        <NavItem active={isActive('/notifications')}>
           <NotificationsIcon />
-          <Typography>Notifications</Typography>
+          <Link href="/notifications" underline="none">
+            <Typography>Notifications</Typography>
+          </Link>
         </NavItem>
 
-        <NavItem>
+        <NavItem active={isActive('/enregistrements')}>
           <BookmarkIcon />
-          <Typography>Enregistrements</Typography>
+          <Link href="/enregistrements" underline="none">
+            <Typography>Enregistrements</Typography>
+          </Link>
         </NavItem>
 
-        <NavItem>
+        <NavItem active={isActive('/interactions')}>
           <PeopleIcon />
-          <Typography>Interactions</Typography>
+          <Link href="/interactions" underline="none">
+            <Typography>Interactions</Typography>
+          </Link>
         </NavItem>
 
-        <NavItem>
+        <NavItem active={isActive('/plus')}>
           <MoreHorizIcon />
-          <Typography>Plus</Typography>
+          <Link href="/plus" underline="none">
+            <Typography>Plus</Typography>
+          </Link>
         </NavItem>
       </Stack>
 
-      {/* Bouton utilisant MuiButton root */}
+      {/* Bouton pour créer un post */}
       <CreatePostButton variant="contained">
         Créer un post
       </CreatePostButton>

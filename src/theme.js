@@ -6,15 +6,17 @@ export const getTheme = (isDarkMode) => {
   const paperBackground = isDarkMode ? '#121212' : '#FFFFFF';
   const textColor = isDarkMode ? '#FFFFFF' : '#0B0E13';
   const extraColor = isDarkMode ? '#FFFFFF' : '#A9A9A9';
+  const backgroundBlack = isDarkMode ? '#121212' : '#FFFFFF';
 
   return createTheme({
     palette: { 
       mode: isDarkMode ? "dark" : "light",
-      primary: { main: '#0B0E13'   },
+      primary: { main: isDarkMode ? '#FFFFFF' : '#0B0E13'   },
       secondary: { main: '#D7E9FB' },
       secondaryActive: { default: '#56A1EC' },
       background: { default: backgroundColor },
       backgroundWhite: { default: paperBackground },
+      backgroundDark: { default: backgroundBlack },
       text: { primary: textColor },
       lightText: { main: '#CCCCCE' },
       lightExtra: {main: extraColor},

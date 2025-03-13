@@ -5,26 +5,42 @@ export const CREATE_POST_REQUEST = "CREATE_POST_REQUEST";
 export const CREATE_POST_SUCCESS = "CREATE_POST_SUCCESS";
 export const CREATE_POST_FAILURE = "CREATE_POST_FAILURE";
 
-// ✅ Action pour créer un post
+// // Action pour créer un post
+// export const createPost = (postData) => async (dispatch) => {
+//   try {
+//     dispatch({ type: CREATE_POST_REQUEST });
+
+//     const config = {
+//       headers: { "Content-Type": "application/json" },
+//     };
+
+//     const response = await axios.post("http://localhost:8081/post", postData, config);
+
+//     dispatch({ type: CREATE_POST_SUCCESS, payload: response.data });
+//   } catch (error) {
+//     dispatch({
+//       type: CREATE_POST_FAILURE,
+//       payload: error.response?.data?.error || "Erreur lors de la création du post",
+//     });
+//   }
+// };
+
 export const createPost = (postData) => async (dispatch) => {
   try {
     dispatch({ type: CREATE_POST_REQUEST });
 
-    const config = {
-      headers: { "Content-Type": "application/json" },
-    };
+    const { data } = await axios.post("http://localhost:8081/post", postData);
 
-    const response = await axios.post("http://localhost:8081/post", postData, config);
+    console.log("✅ Réponse API :", data); // LOG
 
-    dispatch({ type: CREATE_POST_SUCCESS, payload: response.data });
+    dispatch({ type: "CREATE_POST_SUCCESS", payload: data });
+
+    return data; // On retourne les données pour les utiliser immédiatement
   } catch (error) {
-    dispatch({
-      type: CREATE_POST_FAILURE,
-      payload: error.response?.data?.error || "Erreur lors de la création du post",
-    });
+    dispatch({ type: "CREATE_POST_FAIL", payload: error.message });
+    throw error; // On relance l'erreur pour la gérer dans `CreatePost.jsx`
   }
 };
-
 
 // * ---------------- GET ALL POST 
 export const GET_ALL_POSTS_REQUEST = "GET_ALL_POSTS_REQUEST";
@@ -58,14 +74,17 @@ export const deletePost = (postId) => async (dispatch) => {
 
     dispatch({
       type: "DELETE_POST_SUCCESS",
-      payload: postId, // On envoie l'ID du post supprimé
+      payload: postId,
     });
+
+    return postId; 
   } catch (error) {
     console.error("Erreur lors de la suppression du post", error);
     dispatch({
       type: "DELETE_POST_FAIL",
       payload: error.response?.data?.message || "Erreur serveur",
     });
+    throw error; 
   }
 };
 

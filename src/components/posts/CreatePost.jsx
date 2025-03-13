@@ -10,7 +10,8 @@ import {
   IconButton,
   Stack,
   Typography,
-  TextField
+  TextField,
+  Chip,
 } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
@@ -22,6 +23,8 @@ import { useUser } from "../../context/UserContext";
 const CreatePost = ({ onPostCreated }) => {
   const [message, setMessage] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [hashtags, setHashtags] = useState([]); // État pour stocker les hashtags
+  const [hashtagInput, setHashtagInput] = useState(""); // Champ d'entrée de hashtag
   const [showImageInput, setShowImageInput] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const theme = useTheme();
@@ -32,31 +35,56 @@ const CreatePost = ({ onPostCreated }) => {
     setMessage((prev) => prev + emoji.native);
   };
 
+  // ✅ Ajout d'un hashtag à la liste
+  const handleAddHashtag = (event) => {
+    if (event.key === "Enter" && hashtagInput.trim() !== "") {
+      const formattedHashtag = hashtagInput.trim().toLowerCase();
+      if (!formattedHashtag.startsWith("#")) {
+        setHashtags([...hashtags, `#${formattedHashtag}`]); // Ajoute "#" devant si absent
+      } else {
+        setHashtags([...hashtags, formattedHashtag]);
+      }
+      setHashtagInput("");
+    }
+  };
+
+  // Supprimer un hashtag de la liste
+  const handleRemoveHashtag = (tag) => {
+    setHashtags(hashtags.filter((hashtag) => hashtag !== tag));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!currentUser || !currentUser._id) {
       console.error("❌ Erreur : Aucun utilisateur connecté.");
       return;
     }
-
+  
     const newPost = {
       content: message,
-      image: imageUrl, // Ajoute l'image si renseignée
+      image: imageUrl || "",
       author: currentUser._id,
+      hashtags, // ✅ Vérifie que les hashtags sont bien envoyés
     };
-
+  
+    console.log("📤 Données envoyées au serveur :", newPost); // ✅ Vérification
+  
     try {
-      const response = await dispatch(createPost(newPost)); // Envoi Redux
-      onPostCreated(response.payload); // Mise à jour locale immédiate
+      const createdPost = await dispatch(createPost(newPost)); // ✅ Création du post
+      if (onPostCreated) {
+        onPostCreated(createdPost); // ✅ Mise à jour locale immédiate
+      }
     } catch (error) {
       console.error("Erreur lors de la création du post", error);
     }
-
+  
     setMessage("");
     setImageUrl("");
+    setHashtags([]); // ✅ Réinitialisation correcte
     setShowImageInput(false);
   };
+  
 
   return (
     <Paper sx={{ borderRadius: "24px", padding: "20px", backgroundColor: theme.palette.backgroundWhite.default }}>
@@ -113,7 +141,26 @@ const CreatePost = ({ onPostCreated }) => {
               </Box>
             )}
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
+            {/* ✅ Champ pour entrer les hashtags */}
+            <TextField
+              fullWidth
+              variant="outlined"
+              size="small"
+              placeholder="Ajouter un hashtag (#football, #tech)..."
+              value={hashtagInput}
+              onChange={(e) => setHashtagInput(e.target.value)}
+              onKeyDown={handleAddHashtag}
+              sx={{ mt: 2 }}
+            />
+
+            {/* ✅ Liste des hashtags sous forme de "Chips" */}
+            <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap" }}>
+              {hashtags.map((tag, index) => (
+                <Chip key={index} label={tag} onDelete={() => handleRemoveHashtag(tag)} />
+              ))}
+            </Stack>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
               <Stack direction="row" spacing={2} alignItems="center">
                 {/* ✅ Bouton pour ajouter une image via URL */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
