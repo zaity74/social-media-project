@@ -40,7 +40,7 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
   };
 
   const handleSubmit = () => {
-    if (!user?.id) {
+    if (!user?._id) {
       console.error("❌ Erreur : ID utilisateur introuvable !");
       return;
     }
@@ -51,7 +51,7 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
     const updatedData = { ...formData };
     if (!updatedData.password) delete updatedData.password;
 
-    dispatch(updateUser(user && user.id, updatedData)); // **🚀 Envoie l'ID via `useUser()`**
+    dispatch(updateUser(user && user._id, updatedData)); // **🚀 Envoie l'ID via `useUser()`**
   };
 
   return (

@@ -22,7 +22,7 @@ import { useUser } from "../../context/UserContext";
 const CreatePost = ({ onPostCreated }) => {
   const [message, setMessage] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [hashtags, setHashtags] = useState("");  // ✅ Stockage en string simple
+  const [hashtags, setHashtags] = useState("");  
   const [showImageInput, setShowImageInput] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const theme = useTheme();
@@ -36,7 +36,7 @@ const CreatePost = ({ onPostCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!currentUser || !currentUser._id) {
+    if (!currentUser || !currentUser.id) {
       console.error("❌ Erreur : Aucun utilisateur connecté.");
       return;
     }
@@ -44,8 +44,8 @@ const CreatePost = ({ onPostCreated }) => {
     const newPost = {
       content: message,
       image: imageUrl || "",
-      author: currentUser._id,
-      hashtags: hashtags.trim(),  // ✅ Envoi en tant que string unique
+      author: currentUser.id,
+      hashtags: hashtags.trim(),  
     };
 
     console.log("📤 Données envoyées au serveur :", newPost);
