@@ -1,33 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useUser } from '../../context/UserContext'; // ✅ Import du contexte
-import { updateUser } from '../../redux/action/userActions';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useUser } from "../../context/UserContext"; // ✅ Import du contexte
+import { updateUser, getUsers } from "../../redux/action/userActions"; // ✅ Import de `getUsers`
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button,
   Box, TextField, InputAdornment, CircularProgress, Alert
-} from '@mui/material';
+} from "@mui/material";
 
 const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
   const dispatch = useDispatch();
-  const { user } = useUser(); // Récupération des données utilisateur via le contexte
+  const { user, updateUserData } = useUser(); // ✅ Récupération des données utilisateur via le contexte
   const { loading, error, successMessage } = useSelector(state => state.updateUser);
 
-  // Initialisation des champs du formulaire
+  // ✅ Initialisation des champs du formulaire
   const [formData, setFormData] = useState({
-    username: initialData.username || user?.username || '',
-    email: initialData.email || user?.email || '',
-    bio: initialData.bio || user?.bio || '',
-    avatar: initialData.avatar || user?.avatar || '',
-    password: '' 
+    username: initialData.username || user?.username || "",
+    bio: initialData.bio || user?.bio || "",
+    avatar: initialData.avatar || user?.avatar || "",
   });
 
   useEffect(() => {
     setFormData({
-      username: initialData.username || user?.username || '',
-      email: initialData.email || user?.email || '',
-      bio: initialData.bio || user?.bio || '',
-      avatar: initialData.avatar || user?.avatar || '',
-      password: ''
+      username: initialData.username || user?.username || "",
+      bio: initialData.bio || user?.bio || "",
+      avatar: initialData.avatar || user?.avatar || "",
     });
   }, [initialData, user]);
 
@@ -39,24 +35,36 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!user?._id) {
       console.error("❌ Erreur : ID utilisateur introuvable !");
       return;
     }
 
-    if (!formData.username || !formData.email) return;
+    if (!formData.username) return;
 
-    // Si `password` est vide, on ne l'envoie pas dans l'action Redux
-    const updatedData = { ...formData };
-    if (!updatedData.password) delete updatedData.password;
+    try {
+      // Mise à jour de l'utilisateur
+      const updatedUser = await dispatch(updateUser(user._id, formData));
+      
+      if (updatedUser) {
+        // Recharge les utilisateurs après la mise à jour
+        dispatch(getUsers());
 
-    dispatch(updateUser(user && user._id, updatedData)); // **🚀 Envoie l'ID via `useUser()`**
+        // Met à jour le contexte utilisateur
+        updateUserData(updatedUser);
+
+        // Fermer la popup après une mise à jour réussie
+        onClose();
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors de la mise à jour :", error);
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle sx={{ fontFamily: 'Montserrat', fontWeight: 600, fontSize: '20px', textAlign: 'center' }}>
+      <DialogTitle sx={{ fontFamily: "Montserrat", fontWeight: 600, fontSize: "20px", textAlign: "center" }}>
         Modifier le profil
       </DialogTitle>
 
@@ -76,18 +84,6 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
             InputProps={{
               startAdornment: <InputAdornment position="start">@</InputAdornment>,
             }}
-            sx={{ mb: 2 }}
-          />
-
-          {/* Email (Requis) */}
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
             sx={{ mb: 2 }}
           />
 
@@ -114,26 +110,14 @@ const ProfileEditPopup = ({ open, onClose, initialData = {} }) => {
             onChange={handleChange}
             sx={{ mb: 2 }}
           />
-
-          {/* Mot de passe (optionnel) */}
-          <TextField
-            margin="normal"
-            fullWidth
-            name="password"
-            label="Nouveau mot de passe (laisser vide si inchangé)"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ padding: '16px 24px' }}>
+      <DialogActions sx={{ padding: "16px 24px" }}>
         <Button onClick={onClose} disabled={loading}>
           Annuler
         </Button>
-        <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: '#B2FD27' }} disabled={loading}>
+        <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: "#B2FD27" }} disabled={loading}>
           {loading ? <CircularProgress size={20} /> : "Enregistrer"}
         </Button>
       </DialogActions>

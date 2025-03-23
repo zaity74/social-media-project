@@ -11,7 +11,7 @@ import { userRegister } from "../../redux/action/authAction";
 const Register = () => {
   const dispatch = useDispatch();
   
-  // Récupérer les données stockés dans le reducer Register
+  // Récupérer les données stockées dans le reducer Register
   const { user, loading, error, isRegistered, successMessage } = useSelector((state) => state.userRegister);
 
   const [formData, setFormData] = useState({
@@ -105,6 +105,11 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
             />
+
+            {/* Ajouter un message sous le champ de mot de passe */}
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+              Le mot de passe doit comporter au moins 10 caractères.
+            </Typography>
 
             <Button
               type="submit"

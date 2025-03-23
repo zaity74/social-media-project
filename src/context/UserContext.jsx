@@ -1,25 +1,31 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../redux/action/authAction";
+import { getUsers } from "../redux/action/userActions";
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const { user, isLogin, loading } = useSelector((state) => state.userLogin);
+  const { user, isLogin, loading } = useSelector((state) => state.userLogin);  // Assurez-vous que `isLogin` vient du store
+  const { users } = useSelector((state) => state.getUsers);
 
   const [userData, setUserData] = useState(user || null);
 
+  // Charger les utilisateurs au montage
   useEffect(() => {
-    setUserData(user);
-  }, [user]);
+    dispatch(getUsers());
+  }, [dispatch]);
 
-  // ✅ Fonction pour mettre à jour l'utilisateur après un follow/unfollow
-  const updateUserData = (updatedUser) => {
-    console.log("🔄 Mise à jour du contexte utilisateur :", updatedUser);
-    setUserData(updatedUser);
-    localStorage.setItem("loginInfo", JSON.stringify(updatedUser)); // ✅ Met à jour `localStorage`
-  };
+  // Mettre à jour userData quand les utilisateurs sont chargés
+  useEffect(() => {
+    if (user && users.length > 0) {
+      const completeUserData = users.find(u => u._id === user._id);
+      if (completeUserData) {
+        setUserData(completeUserData);
+      }
+    }
+  }, [user, users]);
 
   const loginUser = (email, password) => {
     dispatch(userLogin(email, password));
@@ -33,7 +39,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user: userData, isLogin, loading, loginUser, logoutUser, updateUserData }}>
+    <UserContext.Provider value={{ user: userData, isLogin, loading, loginUser, logoutUser }}>
       {children}
     </UserContext.Provider>
   );

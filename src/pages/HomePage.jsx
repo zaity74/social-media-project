@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { Stack } from "@mui/material";
 import MainLayout from "../components/layout/MainLayout";
 import CreatePost from "../components/posts/CreatePost";
@@ -22,21 +23,31 @@ const HomePage = () => {
   const dispatch = useDispatch();
   useDarkMode();
   const postRefs = useRef([]);
+  const createPostRef = useRef(null);
   const observedElementRef = useRef(null);
+  const location = useLocation();
 
-  // ✅ Charger les posts depuis Redux
+
+  // Charger les posts depuis Redux
   const { posts, loading, error } = useSelector((state) => state.getAllPost);
   const [localPosts, setLocalPosts] = useState([]);
   const [currentPostId, setCurrentPostId] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [waitingForScroll, setWaitingForScroll] = useState(false);
 
-  // ✅ Charger les posts au montage
+  // Scroll to createPost Ref
+  useEffect(() => {
+    if (location.hash === "#create-post" && createPostRef.current) {
+      createPostRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [location]);
+
+  // Charger les posts au montage
   useEffect(() => {
     dispatch(getPosts());
   }, [dispatch]);
 
-  // ✅ Stocker les posts en local et créer des références pour chaque post
+  // Stocker les posts en local et créer des références pour chaque post
   useEffect(() => {
     if (posts.length > 0) {
       setLocalPosts(posts);
@@ -44,20 +55,28 @@ const HomePage = () => {
     }
   }, [posts]);
 
-  // ✅ Ajout d'un post sans rechargement
+  // Ajout d'un post sans rechargement
   const handlePostCreated = (newPost) => {
     setLocalPosts((prevPosts) => [newPost, ...prevPosts]);
   };
 
-  // ✅ Suppression dynamique d'un post
+  // Suppression dynamique d'un post
   const handlePostDeleted = (deletedPostId) => {
     setLocalPosts((prevPosts) => prevPosts.filter((post) => post._id !== deletedPostId));
   };
 
-  // ✅ Gestion du tri des posts
+  // Gestion du tri des posts
   const [sortBy, setSortBy] = useState("recent");
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  // Functions 
+  // Mise à jour dynamique d'un post après un like/unlike
+  const handleLikeToggle = (updatedPost) => {
+    setLocalPosts((prevPosts) =>
+      prevPosts.map((post) => (post._id === updatedPost._id ? updatedPost : post))
+    );
+  };
 
   const handleSortClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -85,7 +104,7 @@ const HomePage = () => {
     }
   };
 
-  // ✅ Détection du post visible sur la page
+  // Détection du post visible sur la page
   const detectVisiblePost = () => {
     let visiblePostId = null;
     for (let i = 0; i < postRefs.current.length; i++) {
@@ -109,7 +128,7 @@ const HomePage = () => {
     }
   };
 
-  // ✅ Détection du scroll principal avec timeout
+  // Détection du scroll principal avec timeout
   useEffect(() => {
     let scrollTimeout = null;
     const handleScroll = () => {
@@ -136,9 +155,9 @@ const HomePage = () => {
 
   return (
     <MainLayout>
-      <CreatePost onPostCreated={handlePostCreated} />
+      <CreatePost  ref={createPostRef} onPostCreated={handlePostCreated} />
 
-      <SortContainer>
+      {/* <SortContainer>
         <SortButton
           onClick={handleSortClick}
           aria-controls={open ? "sort-menu" : undefined}
@@ -170,7 +189,7 @@ const HomePage = () => {
             </SortMenuItem>
           ))}
         </SortMenu>
-      </SortContainer>
+      </SortContainer> */}
 
       <PostsStack>
         <Stack spacing={2}>
@@ -183,7 +202,11 @@ const HomePage = () => {
           ) : (
             localPosts.map((post, index) => (
               <div key={post._id} ref={postRefs.current[index]} data-id={post._id}>
-                <PostCard post={post} onPostDeleted={handlePostDeleted} />
+                <PostCard 
+                post={post} 
+                onPostDeleted={handlePostDeleted}
+                onLikeToggle={handleLikeToggle} 
+                />
               </div>
             ))
           )}

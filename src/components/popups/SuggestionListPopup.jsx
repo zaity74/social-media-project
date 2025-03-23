@@ -28,7 +28,7 @@ const SuggestionListPopup = ({ open, onClose, suggestions }) => {
       </DialogTitle>
 
       <DialogContent sx={{ p: 2, overflowY: "auto" }}>
-        {/* ✅ Utilisation de ItemList pour afficher les suggestions */}
+        {/* Utilisation de ItemList pour afficher les suggestions */}
         <ItemList
           title=""
           data={suggestions}

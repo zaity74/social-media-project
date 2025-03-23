@@ -1,6 +1,18 @@
-import { Box, Typography, Avatar, Button, useTheme } from "@mui/material";
+import { Box, Typography, Avatar, Button, useTheme, Link } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom"; 
 
-const SoloItem = ({ avatar, username, description, showFollowButton, onFollowClick, onUnfollowClick, isFollowing }) => {
+const SoloItem = ({
+  _id,
+  avatar,
+  username,
+  description,
+  postImage,       // ✅ nouveau champ image du post
+  postContent,     // (optionnel) pour usage futur
+  showFollowButton,
+  onFollowClick,
+  onUnfollowClick,
+  isFollowing
+}) => {
   const theme = useTheme();
 
   return (
@@ -14,24 +26,29 @@ const SoloItem = ({ avatar, username, description, showFollowButton, onFollowCli
         padding: "10px 0",
       }}
     >
-      {/* Avatar */}
+      {/* Avatar utilisateur (celui qui a liké/commenté) */}
       <Avatar 
         src={avatar} 
         sx={{ width: 35, height: 35 }}
       />
 
-      {/* Texte (Nom + Action) */}
-      <Box sx={{ flexGrow: 1 }}> 
-        <Typography 
-          sx={{
-            fontFamily: "Joti One",
-            fontWeight: 400,
-            fontSize: "12px",
-            color: theme.palette.text.primary,
-          }}
-        >
-          {username}
-        </Typography>
+      {/* Infos texte + image post */}
+      <Box sx={{ flexGrow: 1 }}>
+        <Link component={RouterLink} to={`/profil/${_id}`} underline="none">
+          <Typography 
+            sx={{
+              fontFamily: "Joti One",
+              fontWeight: 400,
+              fontSize: "12px",
+              color: theme.palette.text.primary,
+              cursor: "pointer",
+              "&:hover": { textDecoration: "underline" },
+            }}
+          >
+            {username}
+          </Typography>
+        </Link>
+
         {description && (
           <Typography 
             sx={{
@@ -45,9 +62,25 @@ const SoloItem = ({ avatar, username, description, showFollowButton, onFollowCli
             {description}
           </Typography>
         )}
+
+        {/* ✅ Afficher l'image du post liké (miniature) */}
+        {postImage && (
+          <Box mt={1}>
+            <img 
+              src={postImage}
+              alt="post"
+              style={{
+                width: "100%",
+                maxWidth: "35px",
+                height: "35px",
+                border: `1px solid ${theme.palette.divider}`,
+              }}
+            />
+          </Box>
+        )}
       </Box>
 
-      {/* Bouton Suivre/Désabonner */}
+      {/* Bouton suivre (pas affiché ici) */}
       {showFollowButton && (
         <Button 
           variant="follow"
@@ -55,6 +88,7 @@ const SoloItem = ({ avatar, username, description, showFollowButton, onFollowCli
           sx={{
             fontSize: "12px",
             textTransform: "none",
+            color: 'white',
             backgroundColor: isFollowing ? "#D7E9FB" : "#0B0E13",
             "&:hover": {
               backgroundColor: isFollowing ? "transparent" : "#D7E9FB",
@@ -62,11 +96,11 @@ const SoloItem = ({ avatar, username, description, showFollowButton, onFollowCli
           }}
         >
           {isFollowing ? "Suivi" : "Suivre"}
-
         </Button>
       )}
     </Box>
   );
 };
+
 
 export default SoloItem;

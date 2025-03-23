@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom"; // Récupérer du parametre ID de l'URL
 import { useDispatch, useSelector } from "react-redux";
 import { Stack } from "@mui/material";
 import MainLayout from "../../components/layout/MainLayout";
@@ -7,19 +8,30 @@ import PostCard from "../../components/posts/PostCard";
 import { PostsStack } from "../HomePage.styles";
 import { getPostsByUser } from "../../redux/action/postActions";
 import { useUser } from "../../context/UserContext";
+import { getUsers } from "../../redux/action/userActions";
+
 
 const UserProfile = () => {
   const dispatch = useDispatch();
-  const { user: currentUser } = useUser(); // ✅ Récupère l'utilisateur connecté
+  const { user: currentUser } = useUser(); // Récupère l'utilisateur connecté
+  const { id } = useParams(); // Récupération de l'ID de l'utilisateur depuis l'URL
 
-  // ✅ Récupère les posts de l'utilisateur depuis Redux
+  // Récupère les posts de l'utilisateur depuis Redux
+  const { users } = useSelector((state) => state.getUsers); // Récupération de tous les utilisateurs
   const { userPosts, loading, error } = useSelector((state) => state.postsByUser);
 
+  // Récupérer l'utilisateur correspondant à l'ID de l'URL ou fallback sur l'utilisateur connecté
+  const profileUser = users.find((u) => u._id === id) || currentUser;
+
   useEffect(() => {
-    if (currentUser?._id) {
-      dispatch(getPostsByUser(currentUser._id));
+    dispatch(getUsers()); // Charge tous les utilisateurs au montage
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (profileUser?._id) {
+      dispatch(getPostsByUser(profileUser._id));
     }
-  }, [dispatch, currentUser]);
+  }, [dispatch, profileUser]);
 
   return (
     <MainLayout>

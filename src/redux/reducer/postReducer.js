@@ -47,7 +47,12 @@ export const getAllPostReducer = (state = getAllPostinitialState, action) => {
   
       case 'GET_ALL_POSTS_FAILURE':
         return { ...state, loading: false, error: action.payload };
-  
+      case 'SEARCH_POSTS_REQUEST':
+          return { loading: true, posts: [], error: null };
+      case 'SEARCH_POSTS_SUCCESS':
+          return { loading: false, posts: action.payload, error: null };
+      case 'SEARCH_POSTS_FAILURE':
+          return { loading: false, posts: [], error: action.payload };
       default:
         return state;
     }
@@ -77,7 +82,7 @@ export const getAllPostReducer = (state = getAllPostinitialState, action) => {
     }
   };
   
-
+// * ------------------ COUNT POST
   const postCountInitialState = {
     postCount: 0,
     userPosts: [],
@@ -103,7 +108,7 @@ export const getAllPostReducer = (state = getAllPostinitialState, action) => {
   };
   
 
-  
+  // * ------------------ POST BY USER
   const postByUserInitialState = {
     postCount: 0,
     userPosts: [],
@@ -127,3 +132,106 @@ export const getAllPostReducer = (state = getAllPostinitialState, action) => {
         return state;
     }
   };
+
+
+  // * ------------------ LIKE POST 
+   const likePostInitialState = {
+    posts: [],
+    loading: false,
+    error: null,
+  };
+  
+
+// Reducer pour gérer les likes et unlikes
+export const postLikeReducer = (state = likePostInitialState, action) => {
+  switch (action.type) {
+    case 'LIKE_POST_REQUEST':
+    case 'UNLIKE_POST_REQUEST':
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case 'LIKE_POST_SUCCESS':
+    case 'UNLIKE_POST_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        posts: state.posts.map((post) =>
+          post._id === action.payload.postId
+            ? { ...post, likes: action.payload.likes }
+            : post
+        ),
+      };
+
+    case 'LIKE_POST_FAILURE':
+    case 'UNLIKE_POST_FAILURE':
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    default:
+      return state;
+  }
+};
+
+// * ------------------------ COMMENTAIRES 
+const commentPostInitialState = {
+  commentsByPost: {}, // Stocke les commentaires par post ID
+  loading: false,
+  error: null,
+};
+
+export const commentReducer = (state = commentPostInitialState, action) => {
+  switch (action.type) {
+    case 'GET_COMMENTS_REQUEST':
+    case 'ADD_COMMENT_REQUEST':
+    case 'DELETE_COMMENT_REQUEST':
+      return { ...state, loading: true };
+
+    case 'GET_COMMENTS_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        commentsByPost: {
+          ...state.commentsByPost,
+          [action.payload.postId]: action.payload.comments,
+        },
+      };
+
+    case 'ADD_COMMENT_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        commentsByPost: {
+          ...state.commentsByPost,
+          [action.payload.postId]: [
+            action.payload.comment,
+            ...(state.commentsByPost[action.payload.postId] || []),
+          ],
+        },
+      };
+
+    case 'DELETE_COMMENT_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        commentsByPost: {
+          ...state.commentsByPost,
+          [action.payload.postId]: state.commentsByPost[action.payload.postId].filter(
+            (comment) => comment._id !== action.payload.commentId
+          ),
+        },
+      };
+
+    case 'GET_COMMENTS_FAILURE':
+    case 'ADD_COMMENT_FAILURE':
+    case 'DELETE_COMMENT_FAILURE':
+      return { ...state, loading: false, error: action.payload };
+
+    default:
+      return state;
+  }
+};

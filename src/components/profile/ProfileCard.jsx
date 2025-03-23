@@ -28,6 +28,7 @@ const ProfileCard = () => {
     }
   }, [dispatch, currentUser]);
 
+
   return (
     <ProfileContainer>
       <ProfileHeader>

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState } from "react"
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { AppBar, Menu, MenuItem } from "@mui/material";
 import { useDarkMode } from "../../context/DarkModeContext";
 import { useUser } from "../../context/UserContext";
@@ -28,6 +30,9 @@ import {
 const TopNav = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { user, isLogin, logoutUser } = useUser() || {}; // ✅ Récupération des infos utilisateur
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { users } = useSelector((state) => state.getUsers); // Recupérer la liste des utilisateurs
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -57,7 +62,32 @@ const TopNav = () => {
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
-          <StyledInputBase placeholder="Rechercher" inputProps={{ "aria-label": "search" }} />
+          <StyledInputBase
+            placeholder="Rechercher"
+            inputProps={{ "aria-label": "search" }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && searchQuery.trim() !== "") {
+                const input = searchQuery.trim();
+              
+                if (input.startsWith("@")) {
+                  const usernameInput = input.slice(1); // Supprimer le @
+                  const matchedUser = users.find((u) =>
+                    u.username.toLowerCase() === usernameInput.toLowerCase()
+                  );
+              
+                  if (matchedUser) {
+                    navigate(`/search?user=${matchedUser.username}`);
+                  } else {
+                    alert("Utilisateur non trouvé");
+                  }
+                } else {
+                  navigate(`/search?q=${encodeURIComponent(input)}`);
+                }
+              }
+            }}
+          />
         </StyledSearchContainer>
 
         <StyledRightSection>

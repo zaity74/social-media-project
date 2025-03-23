@@ -9,74 +9,56 @@ import { getUsers, followUser, unfollowUser } from "../../redux/action/userActio
 const SuggestionList = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { user: currentUser, updateUserData } = useUser(); // Récupère `updateUserData`
+  const { user: currentUser } = useUser(); 
   const [openDialog, setOpenDialog] = useState(false);
 
+  // Récupération des utilisateurs depuis Redux
   const { users, loading, error } = useSelector((state) => state.getUsers);
 
   useEffect(() => {
-    dispatch(getUsers());
+    dispatch(getUsers()); 
   }, [dispatch]);
-
-  // Récupérer l'utilisateur connecté depuis Redux
-  const fullUserData = users.find((user) => user._id === currentUser?.id) || currentUser;
-
-  const handleDialogToggle = () => {
-    setOpenDialog((prev) => !prev);
-  };
-
-  // Suivre un utilisateur et mettre à jour Redux
-  const handleFollow = async (targetUserId) => {
-    if (!fullUserData || !fullUserData._id) {
-      console.error("❌ Impossible de suivre : ID utilisateur introuvable.");
-      return;
-    }
-
-    console.log("Envoi du follow :", fullUserData._id, "➡", targetUserId);
-    await dispatch(followUser(fullUserData._id, targetUserId));
-
-    // Mise à jour Redux et UserContext
-    const updatedUser = {
-      ...fullUserData,
-      following: [...(fullUserData.following || []), targetUserId],
-    };
-    updateUserData(updatedUser);
-    dispatch(getUsers()); // Recharge les utilisateurs après un follow
-  };
-
-  // ✅ Se désabonner et mettre à jour Redux
-  const handleUnfollow = async (targetUserId) => {
-    if (!fullUserData || !fullUserData._id) {
-      console.error("❌ Impossible de se désabonner : ID utilisateur introuvable.");
-      return;
-    }
-
-    console.log("📌 Envoi du unfollow :", fullUserData._id, "❌", targetUserId);
-    await dispatch(unfollowUser(fullUserData._id, targetUserId));
-
-    // Mise à jour Redux et UserContext
-    const updatedUser = {
-      ...fullUserData,
-      following: (fullUserData.following || []).filter((id) => id !== targetUserId),
-    };
-    updateUserData(updatedUser);
-    dispatch(getUsers()); // Recharge les utilisateurs après un unfollow
-  };
 
   if (loading) return <p>🔄 Chargement des suggestions...</p>;
   if (error) return <p>❌ Erreur : {error}</p>;
   if (!users || users.length === 0) return <p>😕 Aucun utilisateur à suggérer.</p>;
 
-  // Exclure l'utilisateur connecté et mettre à jour `isFollowing`
+  // 🔹 Vérifier que `currentUser` est bien défini
+  if (!currentUser || !currentUser._id) {
+    return <p>🔄 Chargement des données utilisateur...</p>;
+  }
+
+  // 🔹 Fonction Follow
+  const handleFollow = async (targetUserId) => {
+    console.log(" Follow : ", currentUser._id, "➡", targetUserId);
+    await dispatch(followUser(currentUser._id, targetUserId));
+
+    // Recharge les données utilisateur après follow
+    dispatch(getUsers());
+  };
+
+  // 🔹 Fonction Unfollow
+  const handleUnfollow = async (targetUserId) => {
+    console.log("❌ Unfollow : ", currentUser._id, "➡", targetUserId);
+    await dispatch(unfollowUser(currentUser._id, targetUserId));
+
+    // Recharge les données utilisateur après unfollow
+    dispatch(getUsers());
+  };
+
+  // 🔹 Exclure l'utilisateur connecté et ajouter l'état de follow/unfollow
   const formattedUsers = users
-    .filter((user) => user._id !== fullUserData._id)
-    .map((user) => ({
-      ...user,
-      showFollowButton: true,
-      isFollowing: fullUserData.following?.includes(user._id),
-      onFollowClick: () => handleFollow(user._id),
-      onUnfollowClick: () => handleUnfollow(user._id),
-    }));
+  .filter((user) => user._id !== currentUser._id)
+  .map((user) => ({
+    _id: user._id, // ✅ Ajout de l'ID pour la navigation
+    avatar: user.avatar,
+    username: user.username,
+    description: user.bio || "",
+    showFollowButton: true,
+    isFollowing: currentUser.following?.includes(user._id),
+    onFollowClick: () => handleFollow(user._id),
+    onUnfollowClick: () => handleUnfollow(user._id),
+  }));
 
   return (
     <>
@@ -87,10 +69,10 @@ const SuggestionList = () => {
         action="Voir plus"
         borderRadiusValue="24px 0px 0px 24px"
         borderDirection="borderLeft"
-        onActionClick={handleDialogToggle}
+        onActionClick={() => setOpenDialog(true)}
       />
 
-      <SuggestionListPopup open={openDialog} onClose={handleDialogToggle} suggestions={formattedUsers} />
+      <SuggestionListPopup open={openDialog} onClose={() => setOpenDialog(false)} suggestions={formattedUsers} />
     </>
   );
 };

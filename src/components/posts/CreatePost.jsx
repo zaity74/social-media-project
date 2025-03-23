@@ -12,12 +12,15 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
+
 import ImageIcon from "@mui/icons-material/Image";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
+
 import { createPost } from "../../redux/action/postActions";
 import { useUser } from "../../context/UserContext";
+import { getPostCountByUser } from "../../redux/action/postActions";
 
 const CreatePost = ({ onPostCreated }) => {
   const [message, setMessage] = useState("");
@@ -36,7 +39,7 @@ const CreatePost = ({ onPostCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!currentUser || !currentUser.id) {
+    if (!currentUser || !currentUser._id) {
       console.error("❌ Erreur : Aucun utilisateur connecté.");
       return;
     }
@@ -44,24 +47,28 @@ const CreatePost = ({ onPostCreated }) => {
     const newPost = {
       content: message,
       image: imageUrl || "",
-      author: currentUser.id,
+      author: currentUser._id,
       hashtags: hashtags.trim(),  
     };
 
-    console.log("📤 Données envoyées au serveur :", newPost);
+    console.log("Données envoyées au serveur :", newPost);
 
     try {
       const createdPost = await dispatch(createPost(newPost)); 
       if (onPostCreated) {
         onPostCreated(createdPost);
       }
+  
+      // Dispatcher `getPostCountByUser` pour mettre à jour Redux avec le nouveau nombre de posts
+      dispatch(getPostCountByUser(currentUser._id));
+  
     } catch (error) {
       console.error("Erreur lors de la création du post", error);
     }
 
     setMessage("");
     setImageUrl("");
-    setHashtags("");  // ✅ Réinitialisation du champ hashtags
+    setHashtags(""); 
     setShowImageInput(false);
   };
 
@@ -71,7 +78,7 @@ const CreatePost = ({ onPostCreated }) => {
         <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
           <Avatar />
           <Box sx={{ flexGrow: 1 }}>
-            {/* ✅ Zone de texte pour écrire un message */}
+            {/* Zone de texte pour écrire un message */}
             <Paper
               variant="outlined"
               sx={{

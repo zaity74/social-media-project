@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom"; // ✅ Import pour le lien de profil
 import {
   Avatar,
   CardContent,
@@ -11,11 +12,13 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import SendIcon from "@mui/icons-material/Send";
+import DeleteIcon from "@mui/icons-material/Delete"; // ✅ Icône pour supprimer un commentaire
 import {
   PostContainer,
   PostHeader,
@@ -26,20 +29,55 @@ import {
   CommentsList,
   CommentBox,
 } from "./PostCard.styles";
-import { deletePost } from "../../redux/action/postActions";
-import { useUser } from "../../context/UserContext";
 
-const PostCard = ({ post, onPostDeleted }) => {
+import { deletePost, unlikePost, likePost } from "../../redux/action/postActions";
+import { useUser } from "../../context/UserContext";
+import { deleteComment, addComment, getComments } from "../../redux/action/postActions";
+
+const PostCard = ({ post, onPostDeleted, onLikeToggle }) => {
   const dispatch = useDispatch();
   const { user: currentUser } = useUser();
 
+  const comments = useSelector((state) => state.userComment.commentsByPost[post._id]) || [];
   const users = useSelector((state) => state.getUsers.users);
   const postAuthor = users?.find((user) => user._id === post.author);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [comment, setComment] = useState("");
-  const [showComments, setShowComments] = useState(false); // ✅ État pour afficher/masquer les commentaires
+  const [showComments, setShowComments] = useState(false);
+  const [likesCount, setLikesCount] = useState(post.likes.length);
+  const [liked, setLiked] = useState(post.likes.includes(currentUser?._id));
+
   const open = Boolean(anchorEl);
+
+  // Charger les commentaires au montage
+  useEffect(() => {
+    dispatch(getComments(post._id));
+  }, [dispatch, post._id]);
+
+  const isLiked = post.likes.includes(currentUser?._id);
+
+  const handleLike = async () => {
+    if (!currentUser) return;
+
+    const updatedPost = { ...post };
+    
+    if (liked) {
+      setLikesCount((prev) => prev - 1);
+      setLiked(false);
+      updatedPost.likes = updatedPost.likes.filter(id => id !== currentUser._id);
+      await dispatch(unlikePost(post._id, currentUser._id));
+    } else {
+      setLikesCount((prev) => prev + 1);
+      setLiked(true);
+      updatedPost.likes = [...updatedPost.likes, currentUser._id];
+      await dispatch(likePost(post._id, currentUser._id));
+    }
+
+    if (onLikeToggle) {
+      onLikeToggle(updatedPost);
+    }
+  };
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -49,7 +87,6 @@ const PostCard = ({ post, onPostDeleted }) => {
     setAnchorEl(null);
   };
 
-  // Supprimer le post et mettre à jour l'état local
   const handleDelete = async () => {
     try {
       await dispatch(deletePost(post._id));
@@ -62,24 +99,39 @@ const PostCard = ({ post, onPostDeleted }) => {
     handleMenuClose();
   };
 
-  // ✅ Toggle pour afficher/masquer les commentaires
   const toggleComments = () => {
     setShowComments((prev) => !prev);
   };
 
-  // Soumission d'un commentaire
-  const handleCommentSubmit = () => {
-    if (comment.trim() === "") return;
-    console.log(`Commentaire ajouté : ${comment}`);
-    setComment("");
+  // **Ajouter un commentaire**
+  const handleCommentSubmit = async () => {
+    if (!comment.trim()) return; // ✅ Vérification du texte du commentaire
+
+    const newComment = {
+      author: currentUser._id,
+      content: comment,
+      post: post._id,
+    };
+
+    await dispatch(addComment(post._id, newComment));
+    setComment(""); // Réinitialiser le champ de saisie
+    dispatch(getComments(post._id)); // Met à jour la liste des commentaires sans refresh
+  };
+
+  // **Supprimer un commentaire**
+  const handleDeleteComment = async (commentId) => {
+    await dispatch(deleteComment(commentId, post._id));
+    dispatch(getComments(post._id)); // ✅ Met à jour la liste des commentaires après suppression
   };
 
   return (
     <PostContainer>
-      {/* Post Header */}
       <PostHeader>
         <PostHeaderInfo>
-          <Avatar src={postAuthor?.avatar || "/default-avatar.png"} sx={{ width: 42, height: 42 }} />
+          {/* Lien vers le profil de l'utilisateur */}
+          <Link to={`/profil/${postAuthor?._id}`} style={{ textDecoration: "none" }}>
+            <Avatar src={postAuthor?.avatar || "/default-avatar.png"} sx={{ width: 42, height: 42, cursor: "pointer" }} />
+          </Link>
           <div>
             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
               {postAuthor?.username || "Utilisateur inconnu"}
@@ -90,12 +142,10 @@ const PostCard = ({ post, onPostDeleted }) => {
           </div>
         </PostHeaderInfo>
 
-        {/* Bouton More (avec menu contextuel) */}
         <IconButton size="small" onClick={handleMenuOpen}>
           <MoreHorizIcon fontSize="small" />
         </IconButton>
 
-        {/* Menu contextuel */}
         <Menu
           sx={{ maxWidth: 200, textAlign: "center" }}
           anchorEl={anchorEl}
@@ -117,46 +167,57 @@ const PostCard = ({ post, onPostDeleted }) => {
         <Typography variant="body2" sx={{ padding: "16px" }}>
           {post.content}
         </Typography>
+        {post.hashtags?.length > 0 && (
+          <Typography
+            variant="body2"
+            sx={{ paddingX: "16px", color: "primary.main"}}
+          >
+            {post.hashtags.map((tag, index) => (
+              <Link
+                key={index}
+                to={`#`}
+                style={{ marginRight: "8px", color: "#1976d2", textDecoration: "none" }}
+              >
+                {tag}
+              </Link>
+            ))}
+          </Typography>
+        )}
       </CardContent>
 
-      {/* Post Image (affichage conditionnel) */}
       {post.image && <CardMedia component="img" image={post.image} alt="Post image" sx={{ padding: 0, margin: 0 }} />}
 
       {/* Post Actions */}
       <PostActions>
-        <IconButton size="small">
-          <ThumbUpOutlinedIcon fontSize="small" />
+        <IconButton size="small" onClick={handleLike}>
+          {liked ? <ThumbUpIcon color="primary" /> : <ThumbUpOutlinedIcon />}
         </IconButton>
-        <Typography variant="caption">{post.likes?.length || 0}</Typography>
+        <Typography variant="caption">{likesCount}</Typography>
 
-        {/* ✅ Icône pour afficher/masquer les commentaires */}
         <IconButton size="small" onClick={toggleComments}>
           <ChatBubbleOutlineIcon fontSize="small" />
         </IconButton>
-        <Typography variant="caption">{post.comments?.length || 0}</Typography>
-
-        <IconButton size="small">
-          <BookmarkBorderIcon fontSize="small" />
-        </IconButton>
+        <Typography variant="caption">{comments.length}</Typography>
       </PostActions>
 
-      {/* ✅ Section Commentaires (s'affiche seulement si `showComments` est `true`) */}
+      {/* Section Commentaires */}
       {showComments && (
         <>
           <CommentsList>
-            <Typography variant="subtitle2" sx={{ fontSize: "12px", fontWeight: 600 }}>
-              Commentaires ({post.comments?.length || 0})
-            </Typography>
-
-            {post.comments?.map((c, index) => (
-              <CommentBox key={index}>
-                <Avatar sx={{ width: 28, height: 28 }} />
+            {comments.map((c) => (
+              <CommentBox key={c._id}>
+                <Link to={`/profil/${c.author._id}`} style={{ textDecoration: "none" }}>
+                  <Avatar src={c.author.avatar} sx={{ width: 28, height: 28 }} />                </Link>
                 <Typography variant="body2">{c.content}</Typography>
+                {currentUser._id === c.author._id && (
+                  <IconButton size="small" onClick={() => handleDeleteComment(c._id)}>
+                    <DeleteIcon fontSize="small" color="error" />
+                  </IconButton>
+                )}
               </CommentBox>
             ))}
           </CommentsList>
 
-          {/* ✅ Formulaire d'Ajout de Commentaire */}
           <CommentSection>
             <Avatar sx={{ width: 32, height: 32 }} />
             <CommentInput>

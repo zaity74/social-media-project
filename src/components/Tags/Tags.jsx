@@ -3,10 +3,13 @@ import ItemList from "../utils/List";
 import AddIcon from "@mui/icons-material/Add";
 import AddTagPopup from "../popups/AddTagPopup";
 import { useState } from "react"; // ✅ Assure-toi que ceci est bien présent
+import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const Tags = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   
   // State pour la gestion du popup
   const [openDialog, setOpenDialog] = useState(false);
@@ -33,6 +36,7 @@ const Tags = () => {
         borderRadiusValue="0px 24px 24px 0px"
         borderDirection="borderRight"
         onActionClick={handleDialogToggle} // ✅ Gère le clic sur "Ajouter"
+        // onItemClick={(tag) => navigate(`/search?q=${encodeURIComponent(tag.username)}`)}
       />
 
     <AddTagPopup

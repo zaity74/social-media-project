@@ -14,6 +14,10 @@ import { getAllPostReducer } from "./reducer/postReducer";
 import { deletePostReducer } from './reducer/postReducer';
 import { postCountReducer } from './reducer/postReducer';
 import { postsByUserReducer } from './reducer/postReducer';
+import { postLikeReducer } from './reducer/postReducer';
+import { commentReducer } from './reducer/postReducer';
+import { notificationReducer } from './reducer/notificationReducer';
+import { messageReducer } from './reducer/messageReducer';
 
 const rootReducer = combineReducers({
   
@@ -28,7 +32,11 @@ const rootReducer = combineReducers({
   deletePoste : deletePostReducer,
   countUserPost : postCountReducer,
   postsByUser : postsByUserReducer,
-  iaTreatment : iaTreatmentReducer
+  iaTreatment : iaTreatmentReducer,
+  likeUserPost : postLikeReducer,
+  userComment : commentReducer,
+  userNotification : notificationReducer,
+  userMessage : messageReducer,
 });
  
 const initialState = {};

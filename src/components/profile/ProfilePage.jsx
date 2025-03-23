@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom"; // Récupérer du parametre ID de l'URL
+import { useDispatch, useSelector } from "react-redux";
 import { useDarkMode } from "../../context/DarkModeContext";
-import { useUser } from "../../context/UserContext"; // ✅ Import de `useUser`
+import { useUser } from "../../context/UserContext"; 
+import { getUsers } from "../../redux/action/userActions"; 
 import ProfileEditPopup from "../popups/ProfileEditPopup";
 
 import { 
@@ -21,24 +24,38 @@ import {
 
 const ProfilePageHeader = () => {
   const { isDarkMode } = useDarkMode();
-  const { user, isLogin } = useUser(); // ✅ Récupération des infos utilisateur
+  const { id } = useParams(); // Récupération de l'ID de l'utilisateur depuis l'URL
+  const dispatch = useDispatch();
+
+  const { users, loading } = useSelector((state) => state.getUsers); // Récupération de tous les utilisateurs
+  const { user: currentUser, isLogin } = useUser(); // Récupération de l'utilisateur connecté
 
   const [activeTab, setActiveTab] = useState("posts");
   const [showEditProfile, setShowEditProfile] = useState(false);
 
+  useEffect(() => {
+    dispatch(getUsers()); // Charge tous les utilisateurs au montage
+  }, [dispatch]);
+
+  // Récupérer l'utilisateur correspondant à l'ID de l'URL ou fallback sur l'utilisateur connecté
+  const profileUser = users.find((u) => u._id === id) || currentUser;
+
   const handleEditProfile = () => {
     setShowEditProfile(true);
   };
+
+  if (loading) return <p>🔄 Chargement des informations...</p>;
 
   return (
     <>
       <HeaderContainer>
         <BannerContainer>
           <ProfilePictureWrapper>
-            <ProfilePicture src={user?.avatar || "/default-avatar.png"} alt="Avatar" />
+            <ProfilePicture src={profileUser?.avatar || "/default-avatar.png"} alt="Avatar" />
           </ProfilePictureWrapper>
 
-          {isLogin && (
+          {/* Affichage du bouton "Modifier le profil" uniquement si on est sur son propre profil */}
+          {isLogin && currentUser?._id === id && (
             <EditProfileButton onClick={handleEditProfile} variant="contained">
               Modifier le profil
             </EditProfileButton>
@@ -48,15 +65,15 @@ const ProfilePageHeader = () => {
         <ContentContainer>
           <UserInfoContainer>
             <NameContainer>
-              <Username>{user?.username || "Utilisateur"}</Username> {/* ✅ Affichage sécurisé */}
-              <Handle>@{user?.username?.toLowerCase() || "username"}</Handle>
+              <Username>{profileUser?.username || "Utilisateur"}</Username>
+              <Handle>@{profileUser?.username?.toLowerCase() || "username"}</Handle>
             </NameContainer>
-            <Bio>{user?.bio || "Aucune bio pour le moment..."}</Bio>
+            <Bio>{profileUser?.bio || "Aucune bio pour le moment..."}</Bio>
           </UserInfoContainer>
 
           <TabsContainer>
             <Tab active={activeTab === "posts"} onClick={() => setActiveTab("posts")}>
-              Mes posts
+              Ses posts
             </Tab>
             <Tab active={activeTab === "saved"} onClick={() => setActiveTab("saved")}>
               Enregistrements
@@ -73,11 +90,11 @@ const ProfilePageHeader = () => {
         open={showEditProfile}
         onClose={() => setShowEditProfile(false)}
         initialData={{
-          name: user?.username || "Utilisateur",
-          username: user?.username || "username",
-          bio: user?.bio || "",
-          avatarUrl: user?.avatarUrl || "/default-avatar.png",
-          bannerUrl: user?.bannerUrl || "/default-banner.jpg"
+          name: profileUser?.username || "Utilisateur",
+          username: profileUser?.username || "username",
+          bio: profileUser?.bio || "",
+          avatarUrl: profileUser?.avatar || "/default-avatar.png",
+          bannerUrl: profileUser?.bannerUrl || "/default-banner.jpg"
         }}
       />
     </>

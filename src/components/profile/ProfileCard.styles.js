@@ -17,7 +17,6 @@ export const ProfileHeader = styled(Box)(({ theme }) => ({
   alignItems: "center",
   gap: "10px",
   width: "100%",
-  justifyContent: "center", 
   position: "relative",
   '&::before': {
     content: '""',
@@ -37,6 +36,7 @@ export const ProfileInfo = styled(Box)({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
+  marginLeft: '8px'
 });
 
 export const ProfilePicture = styled(Avatar)({
@@ -62,7 +62,7 @@ export const Handle = styled(Typography)(({ theme }) => ({
 
 export const StatsContainer = styled(Box)({
   display: "flex",
-  justifyContent: "space-around",
+  justifyContent: "space-between",
   width: "100%",
   paddingTop: "10px",
 });

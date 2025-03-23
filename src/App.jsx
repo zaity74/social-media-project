@@ -6,9 +6,11 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import HomePage from './pages/HomePage';
 import UserProfile from './pages/User/UserProfil';
+import SearchPage from './pages/SearchPage';
 import { DarkModeProvider } from './context/DarkModeContext';
 import { useUser } from './context/UserContext';
 import BackgroundLayout from './components/layout/BackgroundLayout';
+import ChatWidget from './components/chat/chatWidget';
 import './App.css';
 
 // ✅ Composant de protection des routes
@@ -20,8 +22,10 @@ const ProtectedRoute = ({ element }) => {
 import { UserProvider } from "./context/UserContext";
 
 function App() {
+  const { isLogin } = useUser();
+  console.log(isLogin, 'isLogin :::')
   return (
-    <UserProvider> {/* Ajout du Provider */}
+    <UserProvider> 
       <DarkModeProvider>
         <Router>
           <BackgroundLayout />
@@ -31,10 +35,12 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/" element={<ProtectedRoute element={<HomePage />} />} />
-              <Route path="/profil" element={<ProtectedRoute element={<UserProfile />} />} />
+              <Route path="/search" element={<ProtectedRoute element={<SearchPage />} />} />
+              <Route path="/profil/:id" element={<ProtectedRoute element={<UserProfile />} />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Box>
+          { !isLogin ? <ChatWidget /> : '' }
         </Router>
       </DarkModeProvider>
     </UserProvider>
