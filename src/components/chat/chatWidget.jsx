@@ -11,7 +11,7 @@ import toast from "react-hot-toast"; // Pour afficher les notifications
 import ChatIcon from "@mui/icons-material/Chat";
 import { ChatContainer, ChatBar, ConversationListPaper, MessageDialog, MessagesContainer, MessageContainer, Message, MessageInputSection, MessageInput, SendButton, AvatarStyled, StyledDialog } from "./ChatWidget.styles";
 
-const socket = io("http://localhost:8081");
+const socket = io("https://social-media-project-backend-xv0z.onrender.com");
 
 const ChatWidget = () => {
   const { user } = useUser();

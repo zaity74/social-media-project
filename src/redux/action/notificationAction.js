@@ -14,7 +14,7 @@ export const getNotifications = (userId) => async (dispatch) => {
     try {
         dispatch({ type: GET_NOTIFICATIONS_REQUEST });
 
-        const response = await axios.get(`https://socialmediayy.netlify.app/notification/${userId}`);
+        const response = await axios.get(`https://social-media-project-backend-xv0z.onrender.com/notification/${userId}`);
 
         dispatch({
             type: GET_NOTIFICATIONS_SUCCESS,
@@ -34,7 +34,7 @@ export const clearNotifications = (userId) => async (dispatch) => {
     try {
       dispatch({ type: CLEAR_NOTIFICATIONS_REQUEST });
   
-      await axios.delete(`https://socialmediayy.netlify.app/notification/delete/${userId}`);
+      await axios.delete(`https://social-media-project-backend-xv0z.onrender.com/notification/delete/${userId}`);
   
       dispatch({ type: CLEAR_NOTIFICATIONS_SUCCESS });
   
@@ -58,7 +58,7 @@ const GET_UNREAD_COUNT_SUCCESS = "GET_UNREAD_COUNT_SUCCESS";
 
 export const getUnreadNotificationCount = (userId) => async (dispatch) => {
   try {
-    const { data } = await axios.get(`https://socialmediayy.netlify.app/unread-count/${userId}`);
+    const { data } = await axios.get(`https://social-media-project-backend-xv0z.onrender.com/unread-count/${userId}`);
     dispatch({
       type: GET_UNREAD_COUNT_SUCCESS,
       payload: data.unreadCount,

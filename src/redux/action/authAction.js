@@ -14,7 +14,7 @@ export const userLogin = (email, password) => async (dispatch) => {
       const config = { headers: { "Content-Type": "application/json" } };
   
       const response = await axios.post(
-        "https://socialmediayy.netlify.app/login",
+        "https://social-media-project-backend-xv0z.onrender.com/login",
         { email, password },
         config
       );
@@ -56,7 +56,7 @@ export const userRegister = (username, email, password) => async (dispatch) => {
             const config = { headers: { "Content-Type": "application/json" } };
 
             const response = await axios.post(
-                "https://socialmediayy.netlify.app/register",
+                "https://social-media-project-backend-xv0z.onrender.com/register",
                 { username, email, password },
                 config
             );

@@ -25,7 +25,7 @@ export const DELETE_CONVERSATION_FAILURE = "DELETE_CONVERSATION_FAILURE";
 export const fetchConversations = (userId) => async (dispatch) => {
   dispatch({ type: FETCH_CONVERSATIONS_REQUEST });
   try {
-    const { data } = await axios.get(`https://socialmediayy.netlify.app/conversations/${userId}`);
+    const { data } = await axios.get(`https://social-media-project-backend-xv0z.onrender.com/conversations/${userId}`);
     dispatch({ type: FETCH_CONVERSATIONS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
@@ -39,7 +39,7 @@ export const fetchConversations = (userId) => async (dispatch) => {
 export const fetchMessages = (conversationId) => async (dispatch) => {
   dispatch({ type: FETCH_MESSAGES_REQUEST });
   try {
-    const { data } = await axios.get(`https://socialmediayy.netlify.app/${conversationId}`);
+    const { data } = await axios.get(`https://social-media-project-backend-xv0z.onrender.com/${conversationId}`);
     dispatch({ type: FETCH_MESSAGES_SUCCESS, payload: { conversationId, messages: data } });
   } catch (error) {
     dispatch({
@@ -64,7 +64,7 @@ export const sendMessage = (message) => async (dispatch) => {
   console.log('modified message', modifiedMessage);
 
   try {
-    const { data } = await axios.post("https://socialmediayy.netlify.app/send", modifiedMessage, {
+    const { data } = await axios.post("https://social-media-project-backend-xv0z.onrender.com/send", modifiedMessage, {
       headers: {
         'Content-Type': 'application/json',  // Indiquer que les données sont envoyées en JSON
       },
@@ -86,7 +86,7 @@ export const sendMessage = (message) => async (dispatch) => {
 export const createConversation = (senderId, receiverId) => async (dispatch) => {
   dispatch({ type: CREATE_CONVERSATION_REQUEST });
   try {
-    const { data } = await axios.post(`https://socialmediayy.netlify.app/conversations`, {
+    const { data } = await axios.post(`https://social-media-project-backend-xv0z.onrender.com/conversations`, {
       senderId,
       receiverId,
     });
@@ -103,7 +103,7 @@ export const createConversation = (senderId, receiverId) => async (dispatch) => 
 export const deleteConversation = (id) => async (dispatch) => {
   dispatch({ type: DELETE_CONVERSATION_REQUEST });
   try {
-    await axios.delete(`https://socialmediayy.netlify.app/conversations/${id}`);
+    await axios.delete(`https://social-media-project-backend-xv0z.onrender.com/conversations/${id}`);
     dispatch({ type: DELETE_CONVERSATION_SUCCESS, payload: id });
   } catch (error) {
     dispatch({

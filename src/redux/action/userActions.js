@@ -10,7 +10,7 @@ export const getUsers = () => async (dispatch) => {
   try {
     dispatch({ type: "GET_USERS_REQUEST" });
 
-    const response = await axios.get("https://socialmediayy.netlify.app/user");
+    const response = await axios.get("https://social-media-project-backend-xv0z.onrender.com/user");
     
     console.log("🛠️ Utilisateurs récupérés depuis l'API :", response.data);
 
@@ -32,7 +32,7 @@ export const getUsers = () => async (dispatch) => {
 //             headers: { "Content-Type": "application/json" }
 //         };
 
-//         const response = await axios.get("https://socialmediayy.netlify.app/user", config);
+//         const response = await axios.get("https://social-media-project-backend-xv0z.onrender.com/user", config);
 
 //         dispatch({ 
 //             type: GET_USERS_SUCCESS, 
@@ -69,7 +69,7 @@ export const updateUser = (userId, userData) => async (dispatch) => {
       },
     };
 
-    const response = await axios.put(`https://socialmediayy.netlify.app/user/${userId}`, userData, config);
+    const response = await axios.put(`https://social-media-project-backend-xv0z.onrender.com/user/${userId}`, userData, config);
 
     dispatch({ type: UPDATE_USER_SUCCESS, payload: response.data });
 
@@ -97,7 +97,7 @@ export const followUser = (userId, targetUserId) => async (dispatch) => {
     };
 
     const response = await axios.put(
-      `https://socialmediayy.netlify.app/user/follow/${targetUserId}`,
+      `https://social-media-project-backend-xv0z.onrender.com/user/follow/${targetUserId}`,
       { userId },
       config
     );
@@ -129,7 +129,7 @@ export const unfollowUser = (userId, targetUserId) => async (dispatch) => {
       };
 
       const response = await axios.put(
-          `https://socialmediayy.netlify.app/user/unfollow/${targetUserId}`,
+          `https://social-media-project-backend-xv0z.onrender.com/user/unfollow/${targetUserId}`,
           { userId: userId }, // ✅ Vérifier que `userId` est bien `_id`
           config
       );
