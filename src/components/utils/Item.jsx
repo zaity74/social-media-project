@@ -71,9 +71,10 @@ const SoloItem = ({
               alt="post"
               style={{
                 width: "100%",
-                maxWidth: "35px",
-                height: "35px",
+                maxWidth: "65px",
+                height: "65px",
                 border: `1px solid ${theme.palette.divider}`,
+                objectFit: 'cover',
               }}
             />
           </Box>
