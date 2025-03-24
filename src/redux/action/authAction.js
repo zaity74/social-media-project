@@ -14,7 +14,7 @@ export const userLogin = (email, password) => async (dispatch) => {
       const config = { headers: { "Content-Type": "application/json" } };
   
       const response = await axios.post(
-        "http://localhost:8081/login",
+        "https://socialmedy.netlify.app/login",
         { email, password },
         config
       );
@@ -56,7 +56,7 @@ export const userRegister = (username, email, password) => async (dispatch) => {
             const config = { headers: { "Content-Type": "application/json" } };
 
             const response = await axios.post(
-                "http://localhost:8081/register",
+                "https://socialmedy.netlify.app/register",
                 { username, email, password },
                 config
             );

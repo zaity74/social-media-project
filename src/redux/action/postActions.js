@@ -14,7 +14,7 @@ export const CREATE_POST_FAILURE = "CREATE_POST_FAILURE";
 //       headers: { "Content-Type": "application/json" },
 //     };
 
-//     const response = await axios.post("http://localhost:8081/post", postData, config);
+//     const response = await axios.post("https://socialmedy.netlify.app/post", postData, config);
 
 //     dispatch({ type: CREATE_POST_SUCCESS, payload: response.data });
 //   } catch (error) {
@@ -29,7 +29,7 @@ export const createPost = (postData) => async (dispatch) => {
   try {
     dispatch({ type: CREATE_POST_REQUEST });
 
-    const { data } = await axios.post("http://localhost:8081/", postData);
+    const { data } = await axios.post("https://socialmedy.netlify.app/", postData);
 
     console.log("Réponse API :", data); 
     
@@ -52,7 +52,7 @@ export const getPosts = () => async (dispatch) => {
   try {
     dispatch({ type: GET_ALL_POSTS_REQUEST });
 
-    const response = await axios.get("http://localhost:8081/post"); 
+    const response = await axios.get("https://socialmedy.netlify.app/post"); 
 
     dispatch({
       type: GET_ALL_POSTS_SUCCESS,
@@ -71,7 +71,7 @@ export const getPosts = () => async (dispatch) => {
 // * ------------------ // Supprimer un post
 export const deletePost = (postId) => async (dispatch) => {
   try {
-    await axios.delete(`http://localhost:8081/post/${postId}`);
+    await axios.delete(`https://socialmedy.netlify.app/post/${postId}`);
 
     dispatch({
       type: "DELETE_POST_SUCCESS",
@@ -96,7 +96,7 @@ export const getPostCountByUser = (userId) => async (dispatch) => {
   try {
     dispatch({ type: "GET_POST_COUNT_REQUEST" });
 
-    const { data } = await axios.get(`http://localhost:8081/countpost/${userId}`);
+    const { data } = await axios.get(`https://socialmedy.netlify.app/countpost/${userId}`);
 
     console.log('affiche moi lid :', userId);
 
@@ -117,7 +117,7 @@ export const getPostsByUser = (userId) => async (dispatch) => {
   try {
     dispatch({ type: "GET_POSTS_BY_USER_REQUEST" });
 
-    const { data } = await axios.get(`http://localhost:8081/post/${userId}`);
+    const { data } = await axios.get(`https://socialmedy.netlify.app/post/${userId}`);
 
     dispatch({
       type: "GET_POSTS_BY_USER_SUCCESS",
@@ -148,7 +148,7 @@ export const likePost = (postId, userId) => async (dispatch) => {
 
     const config = { headers: { "Content-Type": "application/json" } };
 
-    const { data } = await axios.put(`http://localhost:8081/post/like/${postId}`, { userId }, config);
+    const { data } = await axios.put(`https://socialmedy.netlify.app/post/like/${postId}`, { userId }, config);
 
     dispatch({ type: LIKE_POST_SUCCESS, payload: { postId, likes: data.likes } });
   } catch (error) {
@@ -166,7 +166,7 @@ export const unlikePost = (postId, userId) => async (dispatch) => {
 
     const config = { headers: { "Content-Type": "application/json" } };
 
-    const { data } = await axios.put(`http://localhost:8081/post/unlike/${postId}`, { userId }, config);
+    const { data } = await axios.put(`https://socialmedy.netlify.app/post/unlike/${postId}`, { userId }, config);
 
     dispatch({ type: UNLIKE_POST_SUCCESS, payload: { postId, likes: data.likes } });
   } catch (error) {
@@ -195,7 +195,7 @@ export const addComment = (postId, commentData) => async (dispatch) => {
   try {
     dispatch({ type: ADD_COMMENT_REQUEST });
 
-    const { data } = await axios.post(`http://localhost:8081/post/comment`, commentData);
+    const { data } = await axios.post(`https://socialmedy.netlify.app/post/comment`, commentData);
 
     dispatch({
       type: ADD_COMMENT_SUCCESS,
@@ -216,7 +216,7 @@ export const deleteComment = (commentId, postId) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_COMMENT_REQUEST });
 
-    await axios.delete(`http://localhost:8081/delete/comment/${commentId}`);
+    await axios.delete(`https://socialmedy.netlify.app/delete/comment/${commentId}`);
 
     dispatch({
       type: DELETE_COMMENT_SUCCESS,
@@ -234,7 +234,7 @@ export const getComments = (postId) => async (dispatch) => {
   try {
     dispatch({ type: GET_COMMENTS_REQUEST });
 
-    const { data } = await axios.get(`http://localhost:8081/post/comments/${postId}`);
+    const { data } = await axios.get(`https://socialmedy.netlify.app/post/comments/${postId}`);
 
     dispatch({
       type: GET_COMMENTS_SUCCESS,
@@ -258,7 +258,7 @@ export const searchPosts = (query, user) => async (dispatch) => {
   try {
     dispatch({ type: SEARCH_POSTS_REQUEST });
 
-    let url = `http://localhost:8081/search?`;
+    let url = `https://socialmedy.netlify.app/search?`;
 
     if (query) url += `q=${query}&`;
     if (user) url += `user=${user}`;
